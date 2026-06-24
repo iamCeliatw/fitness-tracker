@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -10,4 +5,181 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum MuscleGroup {
+  CHEST
+  BACK
+  SHOULDERS
+  ARMS
+  LEGS
+  CORE
+  FULL_BODY
+  CARDIO
+}
+
+enum ExerciseCategory {
+  STRENGTH
+  CARDIO
+  FLEXIBILITY
+  BALANCE
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+// ─── User ────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  image        String?
+  password     String?
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workoutLogs  WorkoutLog[]
+  workoutPlans WorkoutPlan[]
+  foodEntries  FoodEntry[]
+  bodyRecords  BodyRecord[]
+}
+
+// ─── Exercise Library ────────────────────────────────────────────────────────
+
+model Exercise {
+  id          String           @id @default(cuid())
+  name        String
+  description String?
+  muscleGroup MuscleGroup
+  category    ExerciseCategory
+  isCustom    Boolean          @default(false)
+  createdById String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  planExercises WorkoutPlanExercise[]
+  logExercises  WorkoutLogExercise[]
+}
+
+// ─── Workout Plan ─────────────────────────────────────────────────────────────
+
+model WorkoutPlan {
+  id          String           @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  days        WorkoutPlanDay[]
+}
+
+model WorkoutPlanDay {
+  id        String                @id @default(cuid())
+  dayOfWeek Int
+  name      String?
+
+  planId    String
+  plan      WorkoutPlan           @relation(fields: [planId], references: [id], onDelete: Cascade)
+  exercises WorkoutPlanExercise[]
+}
+
+model WorkoutPlanExercise {
+  id         String         @id @default(cuid())
+  sets       Int
+  reps       Int?
+  weight     Float?
+  order      Int            @default(0)
+
+  dayId      String
+  day        WorkoutPlanDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise       @relation(fields: [exerciseId], references: [id])
+}
+
+// ─── Workout Log ─────────────────────────────────────────────────────────────
+
+model WorkoutLog {
+  id        String               @id @default(cuid())
+  date      DateTime
+  notes     String?
+  duration  Int?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercises WorkoutLogExercise[]
+}
+
+model WorkoutLogExercise {
+  id         String       @id @default(cuid())
+  order      Int          @default(0)
+
+  logId      String
+  log        WorkoutLog   @relation(fields: [logId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise     @relation(fields: [exerciseId], references: [id])
+  sets       WorkoutSet[]
+}
+
+model WorkoutSet {
+  id         String             @id @default(cuid())
+  setNumber  Int
+  reps       Int?
+  weight     Float?
+  duration   Int?
+  completed  Boolean            @default(false)
+
+  exerciseId String
+  exercise   WorkoutLogExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+}
+
+// ─── Food / Nutrition ────────────────────────────────────────────────────────
+
+model FoodEntry {
+  id        String   @id @default(cuid())
+  date      DateTime
+  mealType  MealType
+  name      String
+  calories  Float
+  protein   Float?
+  carbs     Float?
+  fat       Float?
+  amount    Float?
+  unit      String?
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Body Record ─────────────────────────────────────────────────────────────
+
+model BodyRecord {
+  id         String   @id @default(cuid())
+  date       DateTime
+  weight     Float?
+  bodyFat    Float?
+  muscleMass Float?
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
