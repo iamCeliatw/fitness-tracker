@@ -97,14 +97,14 @@ export default function FoodEntryForm() {
               <Label className="text-gray-400 text-xs">日期</Label>
               <Input
                 type="date"
-                className="bg-gray-800 border-gray-700 text-white h-8 text-sm"
+                className="bg-gray-800 border-gray-700 text-white h-8 text-sm w-full"
                 {...register("date")}
               />
             </div>
             <div className="space-y-1">
               <Label className="text-gray-400 text-xs">餐別</Label>
               <Select value={mealType} onValueChange={(v) => setMealType(v ?? "LUNCH")}>
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-8 text-sm">
+                <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-8 text-sm w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700 text-white">
@@ -128,9 +128,9 @@ export default function FoodEntryForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">熱量 (kcal)</Label>
+              <Label className="text-gray-400 text-xs">熱量 kcal</Label>
               <Input
                 type="number" min="0" step="1" placeholder="165"
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-600 h-8 text-sm"
@@ -139,7 +139,7 @@ export default function FoodEntryForm() {
               {errors.calories && <p className="text-xs text-red-400">{errors.calories.message}</p>}
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">蛋白質 (g)</Label>
+              <Label className="text-gray-400 text-xs">蛋白質 g</Label>
               <Input
                 type="number" min="0" step="0.1" placeholder="30"
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-600 h-8 text-sm"
@@ -147,7 +147,7 @@ export default function FoodEntryForm() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">碳水 (g)</Label>
+              <Label className="text-gray-400 text-xs">碳水 g</Label>
               <Input
                 type="number" min="0" step="0.1" placeholder="0"
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-600 h-8 text-sm"
@@ -155,7 +155,7 @@ export default function FoodEntryForm() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-400 text-xs">脂肪 (g)</Label>
+              <Label className="text-gray-400 text-xs">脂肪 g</Label>
               <Input
                 type="number" min="0" step="0.1" placeholder="5"
                 className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-600 h-8 text-sm"

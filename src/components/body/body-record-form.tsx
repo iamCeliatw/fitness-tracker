@@ -69,13 +69,13 @@ export default function BodyRecordForm() {
               <Label className="text-gray-300 text-xs">日期</Label>
               <Input
                 type="date"
-                className="bg-gray-800 border-gray-700 text-white"
+                className="bg-gray-800 border-gray-700 text-white w-full"
                 {...register("date")}
               />
               {errors.date && <p className="text-xs text-red-400">{errors.date.message}</p>}
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-300 text-xs">體重（kg）*</Label>
+              <Label className="text-gray-300 text-xs">體重 kg *</Label>
               <Input
                 type="number"
                 step="0.1"
@@ -86,7 +86,7 @@ export default function BodyRecordForm() {
               {errors.weight && <p className="text-xs text-red-400">{errors.weight.message}</p>}
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-300 text-xs">體脂率（%）</Label>
+              <Label className="text-gray-300 text-xs">體脂率 %</Label>
               <Input
                 type="number"
                 step="0.1"
@@ -96,7 +96,7 @@ export default function BodyRecordForm() {
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-gray-300 text-xs">肌肉量（kg）</Label>
+              <Label className="text-gray-300 text-xs">肌肉量 kg</Label>
               <Input
                 type="number"
                 step="0.1"
