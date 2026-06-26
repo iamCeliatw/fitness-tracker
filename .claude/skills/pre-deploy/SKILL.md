@@ -109,6 +109,19 @@ const b = await prisma.bar.count();
 
 ---
 
+### Vercel build 卡死（`prisma generate` 未執行）
+
+**症狀**：Vercel build log 停在 `Applying modifyConfig from Vercel`，沒有進入 `Creating an optimized production build`。
+
+**原因**：Vercel 不會自動跑 `prisma generate`，`@prisma/client` 拿不到 schema 型別，compile 階段卡死。
+
+**修法**：`package.json` 的 `build` script 加上 `prisma generate &&`：
+```json
+"build": "prisma generate && next build"
+```
+
+---
+
 ## 環境變數確認（Vercel 首次 deploy）
 
 Vercel 需要手動填入這三個變數：
