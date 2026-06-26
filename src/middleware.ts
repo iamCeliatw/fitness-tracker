@@ -15,6 +15,14 @@ export default auth((req) => {
   const isAdminRoute = nextUrl.pathname.startsWith(ADMIN_PREFIX);
   const isUserRoute = nextUrl.pathname.startsWith(USER_PREFIX);
 
+  // 首頁 redirect
+  if (nextUrl.pathname === "/") {
+    const dest = isLoggedIn
+      ? (session.user.role === "ADMIN" ? "/admin" : "/dashboard")
+      : "/login";
+    return NextResponse.redirect(new URL(dest, nextUrl));
+  }
+
   // 未登入 → 跳轉登入頁
   if (!isLoggedIn && !isPublic) {
     return NextResponse.redirect(new URL("/login", nextUrl));

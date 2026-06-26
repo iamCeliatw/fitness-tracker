@@ -20,6 +20,7 @@ enum MuscleGroup {
   SHOULDERS
   ARMS
   LEGS
+  GLUTES
   CORE
   FULL_BODY
   CARDIO
