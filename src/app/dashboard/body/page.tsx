@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { subDays, startOfDay } from "date-fns";
 import { requireAuth } from "@/lib/auth-helpers";
-import prisma from "@/lib/prisma";
+import { createAdminClient } from "@/lib/supabase/server";
 import BodyTrendChart from "@/components/body/body-trend-chart";
 import BodyRecordForm from "@/components/body/body-record-form";
 import BodyRecordList from "@/components/body/body-record-list";
@@ -12,33 +12,38 @@ interface PageProps {
 }
 
 export default async function BodyPage({ searchParams }: PageProps) {
-  const session = await requireAuth();
+  const user = await requireAuth();
   const { range: rangeParam } = await searchParams;
   const range = rangeParam === "30" ? 30 : 90;
 
   const since = startOfDay(subDays(new Date(), range));
 
-  const records = await prisma.bodyRecord.findMany({
-    where: { userId: session.user.id, date: { gte: since } },
-    orderBy: { date: "desc" },
-  });
+  const admin = await createAdminClient();
+  const { data: records } = await admin
+    .from("BodyRecord")
+    .select("*")
+    .eq("userId", user.id)
+    .gte("date", since.toISOString())
+    .order("date", { ascending: false });
 
-  const chartRecords = records.map((r) => ({
-    date: r.date.toISOString().split("T")[0],
+  const safeRecords = records ?? [];
+
+  const chartRecords = safeRecords.map((r) => ({
+    date: new Date(r.date).toISOString().split("T")[0],
     weight: r.weight,
     bodyFat: r.bodyFat,
   }));
 
-  const listRecords = records.map((r) => ({
+  const listRecords = safeRecords.map((r) => ({
     id: r.id,
-    date: r.date.toISOString().split("T")[0],
+    date: new Date(r.date).toISOString().split("T")[0],
     weight: r.weight,
     bodyFat: r.bodyFat,
     muscleMass: r.muscleMass,
   }));
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto">
       <Link
         href="/dashboard"
         className="flex items-center gap-1 text-gray-400 hover:text-gray-300 text-sm mb-4 transition-colors"
@@ -51,7 +56,6 @@ export default async function BodyPage({ searchParams }: PageProps) {
         <p className="text-gray-400 text-sm mt-1">記錄你的身體數據變化</p>
       </div>
 
-      {/* 區間切換 */}
       <div className="flex gap-2 mb-4">
         <Link
           href="/dashboard/body?range=30"
@@ -75,17 +79,14 @@ export default async function BodyPage({ searchParams }: PageProps) {
         </Link>
       </div>
 
-      {/* 趨勢圖 */}
       <div className="mb-6">
         <BodyTrendChart records={chartRecords} />
       </div>
 
-      {/* 新增表單 */}
       <div className="mb-6">
         <BodyRecordForm />
       </div>
 
-      {/* 歷史列表 */}
       <BodyRecordList records={listRecords} />
     </div>
   );

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export async function GET() {
-  const userCount = await prisma.user.count();
-  return NextResponse.json({ status: "ok", userCount });
+  const admin = await createAdminClient();
+  const { count } = await admin
+    .from("User")
+    .select("*", { count: "exact", head: true });
+  return NextResponse.json({ status: "ok", userCount: count ?? 0 });
 }

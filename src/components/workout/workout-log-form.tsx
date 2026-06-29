@@ -254,7 +254,7 @@ export default function WorkoutLogForm() {
             variant="outline"
             size="sm"
             onClick={() => setPickerOpen(true)}
-            className="border-orange-500 text-orange-400 hover:bg-orange-950/20 h-8 px-3 text-xs"
+            className="border-orange-500 text-orange-400 hover:bg-orange-950/20 hover:text-orange-300 hover:border-orange-400 h-8 px-3 text-xs"
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
             新增動作

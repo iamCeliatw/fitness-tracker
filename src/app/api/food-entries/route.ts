@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { startOfDay, endOfDay } from "date-fns";
-import { auth } from "@/auth";
-import prisma from "@/lib/prisma";
-import type { MealType } from "@/generated/prisma/enums";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 const foodEntrySchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式錯誤"),
@@ -18,25 +16,32 @@ const foodEntrySchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const dateParam = req.nextUrl.searchParams.get("date");
   const target = dateParam ? new Date(dateParam) : new Date();
   const from = startOfDay(target);
   const to = endOfDay(target);
 
-  const entries = await prisma.foodEntry.findMany({
-    where: { userId: session.user.id, date: { gte: from, lte: to } },
-    orderBy: [{ mealType: "asc" }, { createdAt: "asc" }],
-  });
+  const admin = await createAdminClient();
+  const { data: entries } = await admin
+    .from("FoodEntry")
+    .select("*")
+    .eq("userId", user.id)
+    .gte("date", from.toISOString())
+    .lte("date", to.toISOString())
+    .order("mealType", { ascending: true })
+    .order("createdAt", { ascending: true });
 
-  return NextResponse.json(entries);
+  return NextResponse.json(entries ?? []);
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "無效的請求格式" }, { status: 400 });
@@ -47,12 +52,16 @@ export async function POST(req: NextRequest) {
   }
 
   const { date, mealType, name, calories, protein, carbs, fat, amount, unit } = parsed.data;
+  const now = new Date().toISOString();
 
-  const entry = await prisma.foodEntry.create({
-    data: {
-      userId: session.user.id,
-      date: new Date(date),
-      mealType: mealType as MealType,
+  const admin = await createAdminClient();
+  const { data: entry, error } = await admin
+    .from("FoodEntry")
+    .insert({
+      id: crypto.randomUUID(),
+      userId: user.id,
+      date: new Date(date).toISOString(),
+      mealType,
       name,
       calories,
       protein: protein ?? null,
@@ -60,8 +69,13 @@ export async function POST(req: NextRequest) {
       fat: fat ?? null,
       amount: amount ?? null,
       unit: unit ?? null,
-    },
-  });
+      createdAt: now,
+      updatedAt: now,
+    })
+    .select()
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json(entry, { status: 201 });
 }

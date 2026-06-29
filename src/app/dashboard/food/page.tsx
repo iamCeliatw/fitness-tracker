@@ -2,25 +2,30 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
 import { requireAuth } from "@/lib/auth-helpers";
-import prisma from "@/lib/prisma";
+import { createAdminClient } from "@/lib/supabase/server";
 import FoodDailySummary from "@/components/food/food-daily-summary";
 import FoodEntryForm from "@/components/food/food-entry-form";
 import FoodEntryList, { type FoodEntryItem } from "@/components/food/food-entry-list";
 
 export default async function FoodPage() {
-  const session = await requireAuth();
-  const userId = session.user.id;
+  const user = await requireAuth();
+  const userId = user.id;
 
   const today = new Date();
   const from = startOfDay(today);
   const to = endOfDay(today);
 
-  const entries = await prisma.foodEntry.findMany({
-    where: { userId, date: { gte: from, lte: to } },
-    orderBy: [{ mealType: "asc" }, { createdAt: "asc" }],
-  });
+  const admin = await createAdminClient();
+  const { data: entries } = await admin
+    .from("FoodEntry")
+    .select("*")
+    .eq("userId", userId)
+    .gte("date", from.toISOString())
+    .lte("date", to.toISOString())
+    .order("mealType", { ascending: true })
+    .order("createdAt", { ascending: true });
 
-  const listEntries: FoodEntryItem[] = entries.map((e) => ({
+  const listEntries: FoodEntryItem[] = (entries ?? []).map((e) => ({
     id: e.id,
     mealType: e.mealType,
     name: e.name,
@@ -31,7 +36,7 @@ export default async function FoodPage() {
   }));
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto">
       <Link
         href="/dashboard"
         className="flex items-center gap-1 text-gray-400 hover:text-gray-300 text-sm mb-4 transition-colors"

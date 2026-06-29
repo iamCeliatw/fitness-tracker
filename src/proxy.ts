@@ -1,52 +1,52 @@
-import NextAuth from "next-auth";
-import { NextResponse } from "next/server";
-import authConfig from "@/auth.config";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
-const { auth } = NextAuth(authConfig);
+export async function proxy(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({ request });
 
-const PUBLIC_ROUTES = ["/login", "/register"];
-const ADMIN_PREFIX = "/admin";
-const USER_PREFIX = "/dashboard";
+  const supabase = createServerClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
 
-export default auth((req) => {
-  const { nextUrl, auth: session } = req;
-  const isLoggedIn = !!session?.user;
-  const isPublic = PUBLIC_ROUTES.includes(nextUrl.pathname);
-  const isAdminRoute = nextUrl.pathname.startsWith(ADMIN_PREFIX);
-  const isUserRoute = nextUrl.pathname.startsWith(USER_PREFIX);
+  // Refresh session — must happen before any redirect
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // 首頁 redirect
-  if (nextUrl.pathname === "/") {
-    const dest = isLoggedIn
-      ? (session.user.role === "ADMIN" ? "/admin" : "/dashboard")
-      : "/login";
-    return NextResponse.redirect(new URL(dest, nextUrl));
+  const path = request.nextUrl.pathname;
+  const isPublicPath =
+    path === "/" ||
+    path.startsWith("/login") ||
+    path.startsWith("/register") ||
+    path.startsWith("/api/auth") ||
+    path.startsWith("/api/health") ||
+    path.startsWith("/_next") ||
+    path.startsWith("/favicon");
+
+  if (!user && !isPublicPath) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // 未登入 → 跳轉登入頁
-  if (!isLoggedIn && !isPublic) {
-    return NextResponse.redirect(new URL("/login", nextUrl));
-  }
-
-  // 已登入訪問公開頁 → 依 role 導向
-  if (isLoggedIn && isPublic) {
-    const dest = session.user.role === "ADMIN" ? "/admin" : "/dashboard";
-    return NextResponse.redirect(new URL(dest, nextUrl));
-  }
-
-  // 非 ADMIN 訪問後台 → 403
-  if (isAdminRoute && session?.user?.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/dashboard", nextUrl));
-  }
-
-  // ADMIN 訪問前台 → 導向後台
-  if (isUserRoute && session?.user?.role === "ADMIN") {
-    return NextResponse.redirect(new URL("/admin", nextUrl));
-  }
-
-  return NextResponse.next();
-});
+  return supabaseResponse;
+}
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

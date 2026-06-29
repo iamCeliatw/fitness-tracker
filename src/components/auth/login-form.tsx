@@ -5,13 +5,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
 
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const loginSchema = z.object({
   email: z.string().email("請輸入有效的 Email"),
@@ -26,30 +33,38 @@ export default function LoginForm() {
   const registered = searchParams.get("registered") === "true";
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
   async function onSubmit(values: LoginFormValues) {
     setLoginError(null);
+    const supabase = createClient();
 
-    const result = await signIn("credentials", {
+    const { error } = await supabase.auth.signInWithPassword({
       email: values.email,
       password: values.password,
-      redirect: false,
     });
 
-    if (result?.error) {
+    if (error) {
       setLoginError("Email 或密碼錯誤");
       return;
     }
 
-    const session = await getSession();
-    if (session?.user?.role === "ADMIN") {
+    // Get role to determine redirect target
+    const res = await fetch("/api/auth/me");
+    const data = await res.json();
+
+    if (data.role === "ADMIN") {
       router.push("/admin");
     } else {
       router.push("/dashboard");
     }
+    router.refresh();
   }
 
   return (
@@ -70,7 +85,9 @@ export default function LoginForm() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-gray-300">Email</Label>
+            <Label htmlFor="email" className="text-gray-300">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -84,7 +101,9 @@ export default function LoginForm() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-gray-300">密碼</Label>
+            <Label htmlFor="password" className="text-gray-300">
+              密碼
+            </Label>
             <Input
               id="password"
               type="password"
@@ -116,7 +135,10 @@ export default function LoginForm() {
       <CardFooter className="justify-center">
         <p className="text-sm text-gray-400">
           還沒有帳號？{" "}
-          <Link href="/register" className="text-orange-400 hover:text-orange-300 font-medium">
+          <Link
+            href="/register"
+            className="text-orange-400 hover:text-orange-300 font-medium"
+          >
             前往註冊
           </Link>
         </p>

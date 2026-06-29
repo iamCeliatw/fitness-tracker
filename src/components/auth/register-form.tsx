@@ -7,10 +7,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
 
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const registerSchema = z.object({
   name: z.string().min(1, "姓名為必填"),
@@ -24,22 +32,32 @@ export default function RegisterForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterFormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
   });
 
   async function onSubmit(values: RegisterFormValues) {
     setServerError(null);
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.signUp({
+      email: values.email,
+      password: values.password,
+      options: {
+        data: { name: values.name },
+      },
     });
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      setServerError(data.error ?? "發生錯誤，請稍後再試");
+    if (error) {
+      if (error.message.includes("already registered")) {
+        setServerError("此 Email 已被註冊");
+      } else {
+        setServerError(error.message);
+      }
       return;
     }
 
@@ -58,7 +76,9 @@ export default function RegisterForm() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-gray-300">姓名</Label>
+            <Label htmlFor="name" className="text-gray-300">
+              姓名
+            </Label>
             <Input
               id="name"
               placeholder="你的名字"
@@ -71,7 +91,9 @@ export default function RegisterForm() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-gray-300">Email</Label>
+            <Label htmlFor="email" className="text-gray-300">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
@@ -85,7 +107,9 @@ export default function RegisterForm() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-gray-300">密碼</Label>
+            <Label htmlFor="password" className="text-gray-300">
+              密碼
+            </Label>
             <Input
               id="password"
               type="password"
@@ -117,7 +141,10 @@ export default function RegisterForm() {
       <CardFooter className="justify-center">
         <p className="text-sm text-gray-400">
           已有帳號？{" "}
-          <Link href="/login" className="text-orange-400 hover:text-orange-300 font-medium">
+          <Link
+            href="/login"
+            className="text-orange-400 hover:text-orange-300 font-medium"
+          >
             前往登入
           </Link>
         </p>

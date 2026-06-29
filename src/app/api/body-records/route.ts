@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { subDays, startOfDay } from "date-fns";
-import { auth } from "@/auth";
-import prisma from "@/lib/prisma";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 const bodyRecordSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "日期格式錯誤"),
@@ -13,23 +12,28 @@ const bodyRecordSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const range = Number(req.nextUrl.searchParams.get("range") ?? "90");
   const since = startOfDay(subDays(new Date(), range));
 
-  const records = await prisma.bodyRecord.findMany({
-    where: { userId: session.user.id, date: { gte: since } },
-    orderBy: { date: "desc" },
-  });
+  const admin = await createAdminClient();
+  const { data: records } = await admin
+    .from("BodyRecord")
+    .select("*")
+    .eq("userId", user.id)
+    .gte("date", since.toISOString())
+    .order("date", { ascending: false });
 
-  return NextResponse.json(records);
+  return NextResponse.json(records ?? []);
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "無效的請求格式" }, { status: 400 });
@@ -40,17 +44,26 @@ export async function POST(req: NextRequest) {
   }
 
   const { date, weight, bodyFat, muscleMass, notes } = parsed.data;
+  const now = new Date().toISOString();
 
-  const record = await prisma.bodyRecord.create({
-    data: {
-      userId: session.user.id,
-      date: new Date(date),
+  const admin = await createAdminClient();
+  const { data: record, error } = await admin
+    .from("BodyRecord")
+    .insert({
+      id: crypto.randomUUID(),
+      userId: user.id,
+      date: new Date(date).toISOString(),
       weight,
       bodyFat: bodyFat ?? null,
       muscleMass: muscleMass ?? null,
       notes: notes ?? null,
-    },
-  });
+      createdAt: now,
+      updatedAt: now,
+    })
+    .select()
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json(record, { status: 201 });
 }
