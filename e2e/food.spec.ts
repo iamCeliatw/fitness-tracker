@@ -14,11 +14,14 @@ test.describe("Food record flow", () => {
     await page.fill('input[placeholder="雞胸肉"]', name);
     await page.fill('input[placeholder="165"]', "200");
 
-    await page.getByRole("button", { name: "新增記錄" }).click();
+    await Promise.all([
+      page.waitForResponse(r => r.url().includes("/api/food-entries") && r.request().method() === "POST"),
+      page.getByRole("button", { name: "新增記錄" }).click(),
+    ]);
     await page.waitForLoadState("networkidle");
 
     // Entry name should appear in the list
-    await expect(page.locator("p.text-sm.text-white.truncate", { hasText: name })).toBeVisible();
+    await expect(page.locator("p.text-sm.text-white.truncate", { hasText: name })).toBeVisible({ timeout: 15000 });
   });
 
   test("shows validation error when name or calories is empty", async ({ page }) => {
@@ -40,11 +43,14 @@ test.describe("Food record flow", () => {
     // Add entry first
     await page.fill('input[placeholder="雞胸肉"]', name);
     await page.fill('input[placeholder="165"]', "100");
-    await page.getByRole("button", { name: "新增記錄" }).click();
+    await Promise.all([
+      page.waitForResponse(r => r.url().includes("/api/food-entries") && r.request().method() === "POST"),
+      page.getByRole("button", { name: "新增記錄" }).click(),
+    ]);
     await page.waitForLoadState("networkidle");
 
     const nameCell = page.locator("p.text-sm.text-white.truncate", { hasText: name });
-    await expect(nameCell).toBeVisible();
+    await expect(nameCell).toBeVisible({ timeout: 15000 });
 
     // Click trash button in the same row (sibling of flex-1 div)
     await nameCell.locator("xpath=../..").getByRole("button").click();

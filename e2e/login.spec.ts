@@ -9,7 +9,7 @@ test.describe("Login flow", () => {
     await page.click('button[type="submit"]');
 
     await expect(page).toHaveURL("/dashboard");
-    await expect(page.getByText("總覽")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "總覽" })).toBeVisible();
   });
 
   test("wrong credentials show error message", async ({ page }) => {

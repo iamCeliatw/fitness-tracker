@@ -88,8 +88,6 @@ export async function POST(req: NextRequest) {
           logId: newLog.id,
           exerciseId: ex.exerciseId,
           order: ex.order,
-          createdAt: now,
-          updatedAt: now,
         })
         .select()
         .single();
@@ -106,8 +104,6 @@ export async function POST(req: NextRequest) {
             reps: s.reps ?? null,
             weight: s.weight ?? null,
             completed: true,
-            createdAt: now,
-            updatedAt: now,
           });
 
         if (setError) throw new Error(setError.message);

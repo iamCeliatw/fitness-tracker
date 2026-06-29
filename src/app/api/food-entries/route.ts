@@ -70,7 +70,6 @@ export async function POST(req: NextRequest) {
       amount: amount ?? null,
       unit: unit ?? null,
       createdAt: now,
-      updatedAt: now,
     })
     .select()
     .single();
