@@ -58,27 +58,33 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  workoutLogs   WorkoutLog[]
-  workoutPlans  WorkoutPlan[]
-  foodEntries   FoodEntry[]
-  bodyRecords   BodyRecord[]
-  memberships   OrganizationMember[]
-  coachRelations CoachStudent[] @relation("CoachRelations")
-  studentRelations CoachStudent[] @relation("StudentRelations")
+  workoutLogs      WorkoutLog[]
+  workoutPlans     WorkoutPlan[]
+  foodEntries      FoodEntry[]
+  bodyRecords      BodyRecord[]
+  memberships      OrganizationMember[]
+  coachRelations   CoachStudent[]    @relation("CoachRelations")
+  studentRelations CoachStudent[]    @relation("StudentRelations")
+  coachSlots       AppointmentSlot[] @relation("CoachSlots")
+  coachAppointments Appointment[]   @relation("CoachAppointments")
+  studentAppointments Appointment[] @relation("StudentAppointments")
 }
 
 // ─── Organization (Tenant) ───────────────────────────────────────────────────
 
 model Organization {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  plan      String   @default("FREE") // FREE | PRO | ENTERPRISE
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  name               String
+  slug               String   @unique
+  plan               String   @default("FREE") // FREE | PRO | ENTERPRISE
+  bookingCutoffHours Int      @default(2)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  members      OrganizationMember[]
-  coachStudents CoachStudent[]
+  members           OrganizationMember[]
+  coachStudents     CoachStudent[]
+  appointmentSlots  AppointmentSlot[]
+  appointments      Appointment[]
 }
 
 model OrganizationMember {
@@ -219,6 +225,53 @@ model FoodEntry {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Appointment ─────────────────────────────────────────────────────────────
+
+model AppointmentSlot {
+  id        String   @id @default(cuid())
+  startTime DateTime
+  endTime   DateTime
+  status    String   @default("OPEN") // OPEN | BOOKED | CANCELLED
+  createdAt DateTime @default(now())
+
+  coachId String
+  coach   User         @relation("CoachSlots", fields: [coachId], references: [id])
+  orgId   String
+  org     Organization @relation(fields: [orgId], references: [id])
+
+  appointment Appointment?
+}
+
+model Appointment {
+  id          String    @id @default(cuid())
+  status      String    @default("CONFIRMED") // CONFIRMED | CANCELLED
+  notes       String?
+  createdAt   DateTime  @default(now())
+  cancelledAt DateTime?
+
+  slotId    String          @unique
+  slot      AppointmentSlot @relation(fields: [slotId], references: [id])
+  studentId String
+  student   User            @relation("StudentAppointments", fields: [studentId], references: [id])
+  coachId   String
+  coach     User            @relation("CoachAppointments", fields: [coachId], references: [id])
+  orgId     String
+  org       Organization    @relation(fields: [orgId], references: [id])
+}
+
+// ─── Audit Log ────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  tableName String
+  recordId  String
+  operation String   // INSERT | UPDATE | DELETE
+  oldData   Json?
+  newData   Json?
+  actorId   String?
+  createdAt DateTime @default(now())
 }
 
 // ─── Body Record ─────────────────────────────────────────────────────────────
