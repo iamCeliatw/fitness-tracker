@@ -222,3 +222,16 @@ src/
 - TypeScript 出現型別錯誤 → 立即修，不往下繼續
 
 **design.md 必須包含「互動視覺規格」段落**，說明 hover、transition、空狀態呈現方式，實作時一次到位。
+
+### 實作前置確認（每個 Change 開始前）
+
+設計確認後、執行 `/opsx:apply` 前，必須完成以下四項檢查：
+
+| 時機 | 要做的事 |
+|------|---------|
+| 每次新 change | 切功能分支：`git checkout -b feat/<change-name>`（設計確認後立刻切，不等到開始寫 code） |
+| Schema 有改動 | **不使用** `prisma migrate diff`（需要 shadow DB，本機無法連）→ 手動撰寫 SQL → Supabase SQL Editor 執行 |
+| 新功能引入新 OrgRole | 同步在 `.env` 範本 + `.env.local` 補上對應的 `TEST_<ROLE>_EMAIL` / `TEST_<ROLE>_PASSWORD` |
+| 技術遷移（換 DB / Auth library） | 跑 `grep -r "import.*<舊套件名>" src/` 確認無殘留 import → `npm uninstall` 相關套件 |
+
+缺少任何一項 → 補足後才開始實作，不可假設「之後再補」。
