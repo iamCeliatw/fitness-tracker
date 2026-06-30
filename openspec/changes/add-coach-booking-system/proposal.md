@@ -32,5 +32,5 @@
 - **Schema**：新增 3 model，修改 1 model（`Organization`）
 - **API**：新增 6 支 route（`/api/slots` × 3、`/api/appointments` × 3）
 - **Auth helpers**：`src/lib/auth-helpers.ts` 新增 `requireOrgRole()`
-- **DB**：Neon SQL Editor 執行 trigger function + 3 個 trigger
+- **DB**：Supabase SQL Editor 執行 trigger function + 3 個 trigger
 - **路由**：新增 4 個頁面路由

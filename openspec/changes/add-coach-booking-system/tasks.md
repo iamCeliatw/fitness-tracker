@@ -5,12 +5,12 @@
 - [x] 1.3 在 `prisma/schema.prisma` 新增 `AuditLog` model
 - [x] 1.4 在 `Organization` model 新增 `bookingCutoffHours Int @default(2)`
 - [x] 1.5 在 `User` model 新增 `AppointmentSlot`、`Appointment`（coach/student）的 relation fields
-- [ ] 1.6 透過 `prisma migrate diff` 產生 SQL，在 Neon SQL Editor 執行
+- [ ] 1.6 在 Supabase SQL Editor 執行 `prisma/migrations/20260630000000_phase2_coach_booking/migration.sql`
 - [x] 1.7 執行 `npx prisma generate` 更新 client types
 
 ## 2. Supabase Audit Trigger
 
-- [x] 2.1 在 Neon SQL Editor 建立 `audit_trigger_fn()` PostgreSQL function
+- [x] 2.1 在 Supabase SQL Editor 建立 `audit_trigger_fn()` PostgreSQL function
 - [x] 2.2 對 `Appointment` 表建立 `audit_appointments` trigger
 - [x] 2.3 對 `AppointmentSlot` 表建立 `audit_slots` trigger
 - [x] 2.4 對 `WorkoutLog` 表建立 `audit_workout_logs` trigger

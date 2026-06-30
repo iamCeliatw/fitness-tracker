@@ -2,7 +2,7 @@
 
 健身平台已完成 Phase 1（Supabase Auth + 基礎 CRUD），現有 `Organization`、`OrganizationMember`、`CoachStudent` schema 但尚未被使用。Phase 2 在此基礎上實作預約系統、稽核 log、教練 Dashboard，使多角色協作流程完整閉環。
 
-本機環境封鎖 port 5432/6543，所有 runtime 查詢透過 Supabase JS client（HTTPS）；Schema 變更透過 Neon SQL Editor 手動執行。
+本機環境封鎖 port 5432/6543，所有 runtime 查詢透過 Supabase JS client（HTTPS）；Schema 變更透過 Supabase Dashboard SQL Editor 手動執行。
 
 ## Goals / Non-Goals
 
@@ -52,14 +52,14 @@
 ## Risks / Trade-offs
 
 - **actorId 可能為 null**：若 API route 忘記呼叫 `set_config`，trigger 寫入的 `actorId` 為 null → Mitigation：實作 `setAuditActor()` utility function 統一呼叫，code review checklist 加入此項
-- **NeonHttp 不支援 $transaction**：Appointment 建立後需同步更新 Slot.status，需用序列 update + 錯誤補償（同現有 workout log 做法）
+- **Supabase JS client 不支援多步驟交易**：Appointment 建立後需同步更新 Slot.status，需用序列 update + 錯誤補償（同現有 workout log 做法）
 - **Supabase trigger 的 `table` 欄位為 DB table 名**：Prisma 預設 table 名與 model 名相同，但若日後加 `@@map` 會 mismatch → 目前可接受，日後加 `@@map` 時需同步更新 trigger
 
 ## Migration Plan
 
 1. 修改 `prisma/schema.prisma`（新增 3 model + 1 欄位）
-2. 透過 `prisma migrate diff` 產生 SQL，貼至 Neon SQL Editor 執行
-3. 在 Neon SQL Editor 建立 `audit_trigger_fn` function + 3 個 trigger
+2. 手動撰寫 migration SQL，在 Supabase Dashboard SQL Editor 執行
+3. 在 Supabase SQL Editor 建立 `audit_trigger_fn` function + 3 個 trigger
 4. `npx prisma generate` 更新 client types
 5. 部署至 Vercel（無需特殊 migration flag）
 

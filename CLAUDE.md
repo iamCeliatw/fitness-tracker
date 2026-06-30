@@ -12,9 +12,9 @@
 |------|------|
 | Framework | Next.js 16 (App Router, TypeScript) |
 | Styling | Tailwind CSS v4 + shadcn/ui |
-| Database | Neon (Serverless PostgreSQL) |
-| ORM | Prisma 7 + `PrismaNeonHttp` adapter |
-| Auth | NextAuth.js v5 (Credentials, JWT) |
+| Database | Supabase (PostgreSQL) |
+| ORM | Prisma 7（schema 管理 + 型別生成，runtime 查詢用 Supabase client） |
+| Auth | Supabase Auth |
 | Forms | react-hook-form + zod |
 | Charts | Recharts（via shadcn/ui Chart） |
 | Testing | Vitest + React Testing Library + Playwright |
@@ -26,28 +26,38 @@
 ## 架構決策
 
 ### 資料庫連線
-本機網路封鎖 port 5432，**無法直接使用 `prisma migrate dev`**。
-- Runtime 查詢：`PrismaNeonHttp`（HTTPS port 443，在 `src/lib/prisma.ts`）
+本機網路封鎖 port 5432/6543，**無法直接使用 `prisma migrate dev`**。
+- **Runtime 查詢**：Supabase JS client（`createClient` / `createAdminClient`，HTTPS）
+- **Schema 管理**：Prisma 只負責 `schema.prisma` 定義與 `prisma generate` 型別生成
 - Schema 變更流程：見 `docs/schema-migration.md`
 
 ### 認證
-- `src/auth.ts`：NextAuth 核心設定，動態 import prisma/bcrypt（避免 Edge runtime 問題）
-- `src/auth.config.ts`：Edge-safe 設定（middleware 用）
+- Supabase Auth：email/password 登入，JWT session 存於 cookie
+- `src/lib/supabase/server.ts`：`createClient()`（使用者 session）、`createAdminClient()`（service role，繞過 RLS）
 - `src/middleware.ts`：路由保護 + role-based 導向
   - 未登入 → `/login`
   - `USER` 訪問 `/admin/*` → `/dashboard`
   - `ADMIN` 訪問 `/dashboard/*` → `/admin`
+- `src/lib/auth-helpers.ts`：`requireAuth()` / `requireRole()` / `requireOrgRole()` / `setAuditActor()`
 
 ### API 設計
 - 所有 API routes 在 `src/app/api/`
-- 每個 route 都在 handler 內驗證 session（`await auth()`）
+- 每個 route 都在 handler 內呼叫 `supabase.auth.getUser()` 驗證身份
 - 資料操作確保 `userId` 隔離，跨用戶存取回傳 403
+- Supabase JS client 不支援多步驟交易：改用序列 operation + 錯誤補償刪除
 
-### 環境變數（`.env`）
+### 環境變數（`.env.local`）
 ```
-DATABASE_URL   # Neon pooled（含 -pooler，供 PrismaNeonHttp 使用）
-DIRECT_URL     # Neon direct（無 -pooler，備用）
-AUTH_SECRET    # NextAuth JWT 簽名金鑰
+DATABASE_URL              # Supabase pooler（port 6543，pgbouncer，供 Prisma schema diff）
+DIRECT_URL                # Supabase direct（port 5432，備用）
+SUPABASE_URL              # Supabase project URL
+SUPABASE_ANON_KEY         # 前端匿名 key
+SUPABASE_SERVICE_ROLE_KEY # 後端 service role key（繞過 RLS）
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+TEST_USER_EMAIL / TEST_USER_PASSWORD    # E2E 測試帳號（MEMBER）
+TEST_COACH_EMAIL / TEST_COACH_PASSWORD  # E2E 測試帳號（COACH）
+TEST_ADMIN_EMAIL / TEST_ADMIN_PASSWORD  # E2E 測試帳號（ADMIN）
 ```
 
 ---
@@ -55,10 +65,9 @@ AUTH_SECRET    # NextAuth JWT 簽名金鑰
 ## 完成功能
 
 ### ✅ 認證系統（`auth-login-register`）
-- `/register`：name/email/password 註冊，bcrypt hash（cost 12）
+- `/register`：name/email/password 註冊，Supabase Auth signUp
 - `/login`：登入後依 role 導向（USER→`/dashboard`，ADMIN→`/admin`）
 - `(auth)` route group 共用深色健身風 layout
-- `src/lib/auth-helpers.ts`：`requireAuth()` / `requireRole()` Server Component helpers
 
 ### ✅ 體重追蹤（`body-record-tracking`）
 - `/dashboard/body`：體重/體脂率/肌肉量量測記錄
@@ -73,47 +82,32 @@ AUTH_SECRET    # NextAuth JWT 簽名金鑰
 - `useFieldArray` 巢狀結構管理 exercises → sets
 - API：`GET/POST /api/workout-logs`、`DELETE /api/workout-logs/[id]`、`GET /api/exercises`
 - `prisma/seed.ts`：23 筆動作庫初始資料（`npx tsx prisma/seed.ts`）
-- 注意：NeonHttp 不支援 `$transaction`，改用序列 create + 錯誤補償刪除
+
+### ✅ Phase 2：教練預約系統（`add-coach-booking-system`）
+- `/dashboard/booking`：學員瀏覽可預約時段、查看自己的預約
+- `/dashboard/coach`：教練 Dashboard（學員本週進度 + 本週行程 + 新增時段）
+- `/admin/settings`：Org 設定（預約截止時間 `bookingCutoffHours`）
+- `/admin/audit-logs`：稽核紀錄（Supabase DB Trigger 自動寫入）
+- API：`/api/slots`、`/api/appointments`、`/api/admin/settings`、`/api/admin/audit-logs`
 
 ---
 
 ## 資料庫 Schema 概覽
 
 ```
-User              # 用戶（role: USER | ADMIN）
-Exercise          # 動作庫（肌群、類別）
-WorkoutPlan       # 訓練計畫模板
-  WorkoutPlanDay        # 計畫中的每天
-  WorkoutPlanExercise   # 每天的動作
-WorkoutLog        # 實際訓練日誌
-  WorkoutLogExercise    # 日誌中的動作
-  WorkoutSet            # 每個動作的組/次/重量
-FoodEntry         # 飲食記錄（熱量 + 三大營養素）
-BodyRecord        # 身體量測（體重、體脂率、肌肉量）
+User                  # 用戶（role: USER | ADMIN）
+Organization          # 租戶（bookingCutoffHours）
+OrganizationMember    # 用戶↔組織關係（OrgRole: OWNER|ADMIN|COACH|MEMBER）
+CoachStudent          # 教練↔學員配對
+Exercise              # 動作庫（肌群、類別）
+WorkoutPlan / WorkoutPlanDay / WorkoutPlanExercise  # 訓練計畫
+WorkoutLog / WorkoutLogExercise / WorkoutSet        # 訓練日誌
+FoodEntry             # 飲食記錄（熱量 + 三大營養素）
+BodyRecord            # 身體量測（體重、體脂率、肌肉量）
+AppointmentSlot       # 教練可預約時段（OPEN|BOOKED|CANCELLED）
+Appointment           # 學員預約記錄（CONFIRMED|CANCELLED）
+AuditLog              # 稽核 log（由 DB Trigger 自動寫入）
 ```
-
----
-
-## MVP 開發路線
-
-### 已完成
-- [x] 認證系統（登入/註冊/role guard）
-- [x] 體重追蹤（折線圖 + CRUD + 403 保護）
-
-### 下一步（優先順序）
-- [x] **訓練日誌** `/dashboard/workout`（已完成）
-- [ ] **Dashboard 總覽** `/dashboard`
-  - 最近訓練摘要卡片
-  - 本週訓練次數、體重變化
-  - 快速入口連結
-- [ ] **飲食記錄** `/dashboard/food`
-  - 每餐熱量 + 三大營養素輸入
-  - 每日總計 + 圓餅圖
-- [ ] **動作庫瀏覽** `/dashboard/exercises`
-  - 依肌群篩選
-- [ ] **後台管理**
-  - `/admin`：用戶列表、系統統計
-  - `/admin/exercises`：動作庫 CRUD
 
 ---
 
@@ -126,13 +120,12 @@ BodyRecord        # 身體量測（體重、體脂率、肌肉量）
 /opsx:archive              # 封存 change 到 openspec/changes/archive/
 ```
 
-### Schema 變更流程（port 5432 封鎖）
+### Schema 變更流程
 詳見 `docs/schema-migration.md`，簡要步驟：
 1. 修改 `prisma/schema.prisma`
-2. `npx prisma migrate diff --from-migrations prisma/migrations --to-schema prisma/schema.prisma --script` 產生 SQL
-3. 貼到 Neon SQL Editor 執行
-4. 產生 `_prisma_migrations` INSERT SQL 並在 Neon 執行
-5. `npx prisma generate`
+2. 手動撰寫 migration SQL（`prisma migrate diff` 需 shadow DB，本機無法用）
+3. 在 **Supabase Dashboard → SQL Editor** 執行
+4. `npx prisma generate`
 
 ### 啟動開發伺服器
 ```bash
@@ -151,28 +144,33 @@ src/
 │   │   └── register/
 │   ├── dashboard/        # 用戶前台
 │   │   ├── body/         # 體重追蹤頁
-│   │   └── workout/      # 訓練日誌頁（含 /new）
+│   │   ├── workout/      # 訓練日誌頁（含 /new）
+│   │   ├── booking/      # 學員預約頁
+│   │   └── coach/        # 教練 Dashboard
 │   ├── admin/            # 管理員後台
+│   │   ├── settings/     # Org 設定
+│   │   └── audit-logs/   # 稽核紀錄
 │   └── api/              # API routes
-│       ├── auth/
-│       │   ├── [...nextauth]/
-│       │   └── register/
+│       ├── auth/register/
 │       ├── body-records/
 │       ├── exercises/
-│       └── workout-logs/
+│       ├── workout-logs/
+│       ├── slots/
+│       ├── appointments/
+│       └── admin/
 ├── components/
 │   ├── auth/             # 登入/註冊表單元件
 │   ├── body/             # 體重相關元件
 │   ├── workout/          # 訓練日誌元件
+│   ├── booking/          # 預約相關元件
+│   ├── coach/            # 教練 Dashboard 元件
+│   ├── admin/            # 管理後台元件
 │   └── ui/               # shadcn/ui 元件
 ├── lib/
-│   ├── prisma.ts         # Prisma singleton（PrismaNeonHttp）
-│   └── auth-helpers.ts   # requireAuth / requireRole
-├── auth.ts               # NextAuth 設定
-├── auth.config.ts        # Edge-safe NextAuth 設定
-├── middleware.ts          # 路由保護
-└── types/
-    └── next-auth.d.ts    # Session type 擴充
+│   ├── supabase/
+│   │   └── server.ts     # createClient / createAdminClient
+│   └── auth-helpers.ts   # requireAuth / requireRole / requireOrgRole / setAuditActor
+└── middleware.ts          # 路由保護
 ```
 
 ---
@@ -207,7 +205,7 @@ src/
 
 **測試環境基線（每個新環境確認一次）：**
 - `npx playwright install chromium` 已執行
-- `.env` 含 `TEST_USER_EMAIL` 和 `TEST_USER_PASSWORD`
+- `.env.local` 含 `TEST_USER_EMAIL`、`TEST_USER_PASSWORD`、`TEST_COACH_EMAIL`、`TEST_COACH_PASSWORD`、`TEST_ADMIN_EMAIL`、`TEST_ADMIN_PASSWORD`
 - `npm run test:e2e` headless 跑通才算就緒
 
 ### 開發節奏
