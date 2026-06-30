@@ -5,7 +5,7 @@
 - [x] 1.3 在 `prisma/schema.prisma` 新增 `AuditLog` model
 - [x] 1.4 在 `Organization` model 新增 `bookingCutoffHours Int @default(2)`
 - [x] 1.5 在 `User` model 新增 `AppointmentSlot`、`Appointment`（coach/student）的 relation fields
-- [ ] 1.6 在 Supabase SQL Editor 執行 `prisma/migrations/20260630000000_phase2_coach_booking/migration.sql`
+- [x] 1.6 在 Supabase SQL Editor 執行 `prisma/migrations/20260630000000_phase2_coach_booking/migration.sql`
 - [x] 1.7 執行 `npx prisma generate` 更新 client types
 
 ## 2. Supabase Audit Trigger
