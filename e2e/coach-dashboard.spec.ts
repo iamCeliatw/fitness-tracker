@@ -12,6 +12,7 @@ test.describe("Coach Dashboard", () => {
     await page.fill("#email", process.env.TEST_COACH_EMAIL!);
     await page.fill("#password", process.env.TEST_COACH_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/coach");
     await expect(page.getByRole("heading", { name: "教練總覽" })).toBeVisible();
@@ -25,6 +26,7 @@ test.describe("Coach Dashboard", () => {
     await page.fill("#email", process.env.TEST_COACH_EMAIL!);
     await page.fill("#password", process.env.TEST_COACH_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/coach");
 
@@ -40,6 +42,7 @@ test.describe("Coach Dashboard", () => {
     await page.fill("#email", process.env.TEST_COACH_EMAIL!);
     await page.fill("#password", process.env.TEST_COACH_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/coach");
     await expect(page.getByText("新增時段")).toBeVisible();
@@ -51,6 +54,7 @@ test.describe("Coach Dashboard", () => {
     await page.fill("#email", process.env.TEST_USER_EMAIL!);
     await page.fill("#password", process.env.TEST_USER_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/coach");
     await expect(page).toHaveURL("/dashboard");

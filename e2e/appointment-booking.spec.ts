@@ -12,6 +12,7 @@ test.describe("Appointment Booking — student flow", () => {
     await page.fill("#email", process.env.TEST_USER_EMAIL!);
     await page.fill("#password", process.env.TEST_USER_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/booking");
     await expect(page.getByRole("heading", { name: "預約課程" })).toBeVisible();
@@ -25,6 +26,7 @@ test.describe("Appointment Booking — student flow", () => {
     await page.fill("#email", process.env.TEST_USER_EMAIL!);
     await page.fill("#password", process.env.TEST_USER_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/booking");
 
@@ -45,7 +47,8 @@ test.describe("Appointment Booking — student flow", () => {
       data: { slotId: "nonexistent-slot-id" },
     });
     // Should be 401 (not authenticated) or 404 (slot not found)
-    expect([401, 404].includes(res.status())).toBe(true);
+    const status = res.status();
+    expect([401, 404].includes(status), `Expected 401 or 404 but got ${status}`).toBe(true);
   });
 
   test("member can cancel their own appointment", async ({ page }) => {
@@ -54,6 +57,7 @@ test.describe("Appointment Booking — student flow", () => {
     await page.fill("#email", process.env.TEST_USER_EMAIL!);
     await page.fill("#password", process.env.TEST_USER_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/booking");
     await page.waitForLoadState("networkidle");

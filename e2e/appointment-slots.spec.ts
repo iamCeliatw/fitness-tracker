@@ -26,6 +26,7 @@ test.describe("Appointment Slots — coach management", () => {
     await page.fill("#email", process.env.TEST_COACH_EMAIL!);
     await page.fill("#password", process.env.TEST_COACH_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/coach");
     await page.getByText("新增時段").click();
@@ -49,6 +50,7 @@ test.describe("Appointment Slots — coach management", () => {
     await page.fill("#email", process.env.TEST_USER_EMAIL!);
     await page.fill("#password", process.env.TEST_USER_PASSWORD!);
     await page.click('button[type="submit"]');
+    await page.waitForURL("/dashboard");
 
     await page.goto("/dashboard/coach");
     await expect(page).toHaveURL("/dashboard");

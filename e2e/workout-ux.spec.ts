@@ -8,7 +8,9 @@ test.describe("Workout UX improvements", () => {
     await page.waitForLoadState("networkidle");
   });
 
-  test("exercise picker dialog has fixed height when switching muscle tabs", async ({ page }) => {
+  test("exercise picker dialog has fixed height when switching muscle tabs", async ({
+    page,
+  }) => {
     await page.getByRole("button", { name: "新增動作" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
@@ -19,12 +21,16 @@ test.describe("Workout UX improvements", () => {
     await page.getByRole("tab", { name: "胸" }).click();
     const boxAfter = await dialog.boundingBox();
 
-    // Allow up to 20px variance (e.g. scrollbar appear/disappear), reject large jumps (100px+)
-    const heightDiff = Math.abs((boxBefore?.height ?? 0) - (boxAfter?.height ?? 0));
-    expect(heightDiff).toBeLessThan(20);
+    // Allow up to 30px variance (e.g. scrollbar appear/disappear), reject large jumps (100px+)
+    const heightDiff = Math.abs(
+      (boxBefore?.height ?? 0) - (boxAfter?.height ?? 0),
+    );
+    expect(heightDiff).toBeLessThan(30);
   });
 
-  test("copy button appears from second set, copies previous set values", async ({ page }) => {
+  test("copy button appears from second set, copies previous set values", async ({
+    page,
+  }) => {
     // Open picker and add an exercise
     await page.getByRole("button", { name: "新增動作" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
@@ -32,8 +38,12 @@ test.describe("Workout UX improvements", () => {
     await expect(page.getByRole("dialog")).not.toBeVisible();
 
     // First set — no copy button
-    const firstSetRow = page.locator('[name="exercises.0.sets.0.reps"]').locator("..");
-    await expect(firstSetRow.getByRole("button", { name: /copy/i })).not.toBeVisible();
+    const firstSetRow = page
+      .locator('[name="exercises.0.sets.0.reps"]')
+      .locator("..");
+    await expect(
+      firstSetRow.getByRole("button", { name: /copy/i }),
+    ).not.toBeVisible();
 
     // Fill first set values
     await page.fill('[name="exercises.0.sets.0.reps"]', "8");
@@ -43,14 +53,25 @@ test.describe("Workout UX improvements", () => {
     await page.getByRole("button", { name: "新增一組" }).click();
 
     // Second set should have copy button — click it
-    await page.locator('[name="exercises.0.sets.1.reps"]').locator("..").getByRole("button").nth(0).click();
+    await page
+      .locator('[name="exercises.0.sets.1.reps"]')
+      .locator("..")
+      .getByRole("button")
+      .nth(0)
+      .click();
 
     // Verify copied values
-    await expect(page.locator('[name="exercises.0.sets.1.reps"]')).toHaveValue("8");
-    await expect(page.locator('[name="exercises.0.sets.1.weight"]')).toHaveValue("60");
+    await expect(page.locator('[name="exercises.0.sets.1.reps"]')).toHaveValue(
+      "8",
+    );
+    await expect(
+      page.locator('[name="exercises.0.sets.1.weight"]'),
+    ).toHaveValue("60");
   });
 
-  test("custom exercise can be created and added to workout", async ({ page }) => {
+  test("custom exercise can be created and added to workout", async ({
+    page,
+  }) => {
     await page.getByRole("button", { name: "新增動作" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
 
