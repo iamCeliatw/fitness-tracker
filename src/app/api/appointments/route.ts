@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     .eq("status", "CONFIRMED");
 
   const hasOverlap = (conflicts ?? []).some((apt) => {
-    const s = apt.slot as { startTime: string; endTime: string } | null;
+    const s = apt.slot as unknown as { startTime: string; endTime: string } | null;
     if (!s) return false;
     return new Date(s.startTime) < new Date(slot.endTime) &&
            new Date(s.endTime) > new Date(slot.startTime);

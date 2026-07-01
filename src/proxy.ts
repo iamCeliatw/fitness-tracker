@@ -35,8 +35,7 @@ export async function proxy(request: NextRequest) {
     path === "/" ||
     path.startsWith("/login") ||
     path.startsWith("/register") ||
-    path.startsWith("/api/auth") ||
-    path.startsWith("/api/health") ||
+    path.startsWith("/api/") ||
     path.startsWith("/_next") ||
     path.startsWith("/favicon");
 

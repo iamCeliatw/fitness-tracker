@@ -14,7 +14,7 @@ export default async function BookingPage() {
     .single();
 
   const orgId = membership?.orgId ?? null;
-  const cutoffHours = (membership?.org as { bookingCutoffHours: number } | null)?.bookingCutoffHours ?? 2;
+  const cutoffHours = (membership?.org as unknown as { bookingCutoffHours: number } | null)?.bookingCutoffHours ?? 2;
 
   const [{ data: slots }, { data: appointments }] = await Promise.all([
     orgId
@@ -40,7 +40,7 @@ export default async function BookingPage() {
       <section className="mb-10">
         <h2 className="text-lg font-semibold mb-3 text-gray-300">可預約時段</h2>
         <BookingSlotList
-          slots={(slots ?? []) as Parameters<typeof BookingSlotList>[0]["slots"]}
+          slots={(slots ?? []) as unknown as Parameters<typeof BookingSlotList>[0]["slots"]}
           cutoffHours={cutoffHours}
         />
       </section>
@@ -48,7 +48,7 @@ export default async function BookingPage() {
       <section>
         <h2 className="text-lg font-semibold mb-3 text-gray-300">我的預約</h2>
         <MyAppointmentList
-          appointments={(appointments ?? []) as Parameters<typeof MyAppointmentList>[0]["appointments"]}
+          appointments={(appointments ?? []) as unknown as Parameters<typeof MyAppointmentList>[0]["appointments"]}
         />
       </section>
     </div>

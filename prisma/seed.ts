@@ -1,11 +1,12 @@
 import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { createClient } from "@supabase/supabase-js";
 
-const adapter = new PrismaPg(process.env.DATABASE_URL!);
-const prisma = new PrismaClient({ adapter });
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const exercises = [
   // CHEST
@@ -41,28 +42,36 @@ const exercises = [
 ] as const;
 
 async function main() {
-  const existing = await prisma.exercise.count();
-  if (existing > 0) {
-    console.log(`Already ${existing} exercises — skipping seed.`);
+  const { count, error: countErr } = await supabase
+    .from("Exercise")
+    .select("*", { count: "exact", head: true });
+
+  if (countErr) throw countErr;
+
+  if (count && count > 0) {
+    console.log(`Already ${count} exercises — skipping seed.`);
     return;
   }
+
   console.log("Seeding exercises...");
-  for (const ex of exercises) {
-    await prisma.exercise.create({
-      data: {
-        name: ex.name,
-        muscleGroup: ex.muscleGroup,
-        category: ex.category,
-        isCustom: false,
-      },
-    });
-  }
+
+  const { error } = await supabase.from("Exercise").insert(
+    exercises.map((ex) => ({
+      id: crypto.randomUUID(),
+      name: ex.name,
+      muscleGroup: ex.muscleGroup,
+      category: ex.category,
+      isCustom: false,
+      createdAt: new Date().toISOString(),
+    }))
+  );
+
+  if (error) throw error;
+
   console.log(`Done. ${exercises.length} exercises seeded.`);
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

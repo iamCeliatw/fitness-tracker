@@ -24,6 +24,7 @@ export default function BookingSlotList({
   const router = useRouter();
   const [booking, setBooking] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [now] = useState<number>(() => Date.now());
 
   if (slots.length === 0) {
     return (
@@ -55,7 +56,6 @@ export default function BookingSlotList({
     }
   }
 
-  const now = Date.now();
   const cutoffMs = cutoffHours * 60 * 60 * 1000;
 
   return (

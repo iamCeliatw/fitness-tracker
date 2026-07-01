@@ -1,6 +1,6 @@
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import type { OrgRole } from "@/generated/prisma";
+import type { OrgRole } from "@/generated/prisma/enums";
 
 export async function requireAuth() {
   const supabase = await createClient();

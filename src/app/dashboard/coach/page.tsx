@@ -61,7 +61,7 @@ export default async function CoachDashboardPage() {
   }
 
   const students = (coachStudents ?? []).map((cs) => {
-    const s = cs.student as { id: string; name: string | null; email: string } | null;
+    const s = cs.student as unknown as { id: string; name: string | null; email: string } | null;
     return {
       id: cs.studentId,
       name: s?.name ?? s?.email ?? cs.studentId,
@@ -81,7 +81,7 @@ export default async function CoachDashboardPage() {
         <section>
           <h2 className="text-lg font-semibold mb-3 text-gray-300">本週行程</h2>
           <WeeklySchedule
-            slots={(slots ?? []) as Parameters<typeof WeeklySchedule>[0]["slots"]}
+            slots={(slots ?? []) as unknown as Parameters<typeof WeeklySchedule>[0]["slots"]}
             coachId={userId}
           />
         </section>
