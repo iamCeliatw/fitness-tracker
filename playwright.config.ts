@@ -1,9 +1,11 @@
 import * as dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: ".env.local" });
+dotenv.config(); // fallback to .env for anything not in .env.local
 
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
+  globalSetup: "./e2e/global-setup.ts",
   testDir: "./e2e",
   fullyParallel: false,
   workers: 1,
