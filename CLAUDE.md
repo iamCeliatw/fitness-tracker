@@ -208,6 +208,26 @@ src/
 - `.env.local` 含 `TEST_USER_EMAIL`、`TEST_USER_PASSWORD`、`TEST_COACH_EMAIL`、`TEST_COACH_PASSWORD`、`TEST_ADMIN_EMAIL`、`TEST_ADMIN_PASSWORD`
 - `npm run test:e2e` headless 跑通才算就緒
 
+**E2E 穩定性三規則（2026-07-02 session 覆盤，E2E 與手動測試共用同一個 Supabase dev DB）：**
+1. 斷言一律用 auto-waiting（`expect(locator).toBeVisible()`），**禁止** `isVisible()` 立即檢查——頁面串流慢就 flaky
+2. 會寫 DB 的測試**開場先重置自身相關狀態**（自癒設計，例：`resetCoachPairings`），不可假設環境乾淨——失敗殘留與並行的手動測試都會毒害下次執行
+3. locator 圈定在目標卡片/列（`.filter({ hasText })` + section 範圍），不假設元素全域唯一——共用 DB 裡隨時可能多出同類資料
+
+### 環境變數同步規則
+
+新增任何 env var 時**三處同步**，缺一個就是未來的 500：
+1. `.env`（範本）與 `.env.local.example`
+2. `.env.local`（實際值）
+3. **Vercel Dashboard → Environment Variables**（Production + Preview）→ redeploy
+
+注意：`src/proxy.ts` 與 server 端用的是**無 `NEXT_PUBLIC_` 前綴**的 `SUPABASE_URL` / `SUPABASE_ANON_KEY`，Vercel 上兩種前綴都要設，缺了會全站 500（middleware 在所有路由前執行）。
+
+### 套件版本陷阱（跟訓練資料不一樣的地方）
+
+- **Next.js 16**：middleware 改名 `src/proxy.ts`（export `proxy`），詳見 AGENTS.md，寫 code 前查 `node_modules/next/dist/docs/`
+- **shadcn/ui 是 Base UI 底（非 Radix）**：`Select.Value` 預設渲染原始 value，value≠label 時必須給 `Select.Root` 傳 `items`；`onValueChange` 參數型別是 `string | null`
+- **寫任何 DB insert 前讀完整 model**：確認所有 NOT NULL 欄位（含關聯 id 如 `orgId`）與 unique constraint 範圍——特別注意 constraint 是否**不分 status**（如 `CoachStudent`，重新配對要 UPDATE 重新啟用而非 INSERT）
+
 ### 開發節奏
 
 每個任務的執行步驟（不可跳過）：
