@@ -25,7 +25,7 @@
 
 ## 5. E2E 測試
 
-- [ ] 5.1 `e2e/admin-members.spec.ts` happy path：admin 登入 → 列表可見 → 升 COACH → badge 更新 → 指派學員 → 配對出現 → 結束配對（測試資料自行清理或隨機隔離）
-- [ ] 5.2 edge：非 admin 訪問 `/admin/members` 被導回 `/dashboard`；降級有 ACTIVE 配對的教練顯示錯誤且角色不變
-- [ ] 5.3 註冊 E2E：隨機 email 註冊 → 登入成功 → 確認自動取得 MEMBER membership（測後清理帳號）
-- [ ] 5.4 `npm run test:e2e` 全綠（含既有 spec 無回歸）
+- [x] 5.1 `e2e/admin-members.spec.ts` happy path：admin 登入 → 列表可見 → 升 COACH → badge 更新 → 指派學員 → 配對出現 → 結束配對（測試資料自行清理或隨機隔離）
+- [x] 5.2 edge：非 admin 訪問 `/admin/members` 被導回 `/dashboard`；降級有 ACTIVE 配對的教練顯示錯誤且角色不變
+- [x] 5.3 註冊 E2E：隨機 email 註冊 → 登入成功 → 確認自動取得 MEMBER membership（測後清理帳號）
+- [x] 5.4 `npm run test:e2e` 全綠（含既有 spec 無回歸）

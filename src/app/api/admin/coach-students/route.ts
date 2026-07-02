@@ -29,6 +29,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // 配對隸屬教練 membership 的組織
+  const { data: coachMembership } = await ctx.admin
+    .from("OrganizationMember")
+    .select("orgId")
+    .eq("userId", coachId)
+    .eq("role", "COACH")
+    .single();
+
+  if (!coachMembership) {
+    return NextResponse.json(
+      { error: "該用戶不是任何組織的教練" },
+      { status: 422 }
+    );
+  }
+
   const { count: existing } = await ctx.admin
     .from("CoachStudent")
     .select("id", { count: "exact", head: true })
@@ -50,6 +65,7 @@ export async function POST(req: NextRequest) {
       id: crypto.randomUUID(),
       coachId,
       studentId,
+      orgId: coachMembership.orgId,
       status: "ACTIVE",
       assignedAt: new Date().toISOString(),
     })
