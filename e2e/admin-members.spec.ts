@@ -14,6 +14,27 @@ const adminHeaders = {
   "Content-Type": "application/json",
 };
 
+/** 取得 email 對應的 User id */
+async function getUserId(email: string): Promise<string | null> {
+  const rows = await (
+    await fetch(
+      `${SUPABASE_URL}/rest/v1/User?email=eq.${encodeURIComponent(email)}&select=id`,
+      { headers: adminHeaders }
+    )
+  ).json();
+  return rows[0]?.id ?? null;
+}
+
+/** 刪除 test coach 的所有配對（任何 status）——讓配對測試自癒，不受先前失敗殘留影響 */
+async function resetCoachPairings() {
+  const coachId = await getUserId(process.env.TEST_COACH_EMAIL!);
+  if (!coachId) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/CoachStudent?coachId=eq.${coachId}`, {
+    method: "DELETE",
+    headers: adminHeaders,
+  });
+}
+
 async function loginAsAdmin(page: import("@playwright/test").Page) {
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
@@ -61,12 +82,22 @@ test.describe("Admin member management", () => {
   test("assign student, demotion guard blocks, end pairing", async ({
     page,
   }) => {
+    await resetCoachPairings();
     await loginAsAdmin(page);
     await page.goto("/admin/members");
     await page.waitForLoadState("networkidle");
 
-    // 指派學員給 test coach（唯一教練）
-    await page.getByRole("button", { name: "指派學員" }).first().click();
+    // 指派學員給 test coach（locator 圈定在 test coach 的配對卡片，
+    // 避免環境中其他教練/配對造成 strict mode 衝突）
+    const pairingSection = page
+      .locator("section")
+      .filter({ has: page.getByRole("heading", { name: "教練配對" }) });
+    const coachCard = pairingSection
+      .locator("div.rounded-lg")
+      .filter({ hasText: "test coach" })
+      .first();
+
+    await coachCard.getByRole("button", { name: "指派學員" }).click();
     await page.getByRole("combobox").click();
     await page.getByRole("option").first().click();
     // 選中後 trigger 應顯示學員名稱，而非 userId
@@ -75,7 +106,9 @@ test.describe("Admin member management", () => {
       /[0-9a-f]{8}-[0-9a-f]{4}/
     );
     await page.getByRole("button", { name: "建立配對" }).click();
-    await expect(page.getByRole("button", { name: "結束配對" })).toBeVisible();
+    await expect(
+      coachCard.getByRole("button", { name: "結束配對" }).first()
+    ).toBeVisible();
 
     // 降級防呆：test coach 有 ACTIVE 配對 → 409 錯誤顯示、角色不變
     const coachRow = page
@@ -86,19 +119,16 @@ test.describe("Admin member management", () => {
     await expect(page.getByText(/仍有進行中的配對/)).toBeVisible();
     await expect(coachRow.getByText("教練", { exact: true })).toBeVisible();
 
-    // 還原：結束配對
-    await page.getByRole("button", { name: "結束配對" }).click();
+    // 還原：結束配對（同樣圈定在 test coach 卡片）
+    await coachCard.getByRole("button", { name: "結束配對" }).first().click();
     await page
       .getByRole("alertdialog")
       .getByRole("button", { name: "確定" })
       .click();
-    await expect(page.getByText("尚無配對學員")).toBeVisible();
+    await expect(coachCard.getByText("尚無配對學員")).toBeVisible();
 
-    // DB 清理：刪除 ENDED 配對列
-    await fetch(`${SUPABASE_URL}/rest/v1/CoachStudent?status=eq.ENDED`, {
-      method: "DELETE",
-      headers: adminHeaders,
-    });
+    // DB 清理：刪除 test coach 的配對殘留
+    await resetCoachPairings();
   });
 
   test("non-admin is redirected away from /admin/members", async ({
