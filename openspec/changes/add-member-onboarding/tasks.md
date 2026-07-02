@@ -1,7 +1,7 @@
 ## 1. Migration 與環境
 
 - [x] 1.1 撰寫 `prisma/migrations/20260702000000_member_onboarding/migration.sql`：canonical `handle_new_user` trigger（先於 Supabase Dashboard 抄下現行定義備查）、預設 org 不存在則建立、無 membership 用戶回填 MEMBER、audit trigger 補掛 OrganizationMember + CoachStudent（全部 idempotent）
-- [ ] 1.2 於 Supabase SQL Editor 執行 migration SQL，驗證：trigger 存在、回填生效（`test@gmail.com`、`celia@gmail.com` 有 membership）
+- [x] 1.2 於 Supabase SQL Editor 執行 migration SQL，驗證：trigger 存在、回填生效（`test@gmail.com`、`celia@gmail.com` 有 membership）
 - [x] 1.3 `.env` 範本 + `.env.local` 加 `BOOTSTRAP_ADMIN_EMAIL`（部署文件註記 Vercel 需補設）
 
 ## 2. 註冊流程
