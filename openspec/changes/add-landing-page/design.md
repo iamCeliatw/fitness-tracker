@@ -27,8 +27,9 @@
 `<Reveal>` client 元件用 IntersectionObserver 切換 `opacity-0 translate-y-4` → `opacity-100 translate-y-0`。只動 transform/opacity 保證滑順。
 （替代方案：framer-motion +35kB 且易做過頭偏「AI 產品感」；GSAP overkill — 均否決。）
 
-### D3：功能卡片陣列驅動
-`src/components/landing/features-data.ts` 匯出 `features: { icon, title, description }[]`，目前 4 筆（訓練日誌、體重趨勢、教練預約、管理後台）。新功能上線 = 加一筆資料，grid 自動排版。
+### D3：功能卡片陣列驅動（bento 產品實境格）
+`src/components/landing/features-data.ts` 匯出 `features: { title, description, visual, span }[]`，目前 4 筆（訓練日誌、體重趨勢、教練預約、管理後台）。每張卡片嵌入迷你產品 UI 示意（`feature-visuals.tsx`，延續 hero mock 風格）取代抽象 icon，格寬 wide/narrow 交錯（5 欄制 3+2／2+3）。新功能上線 = 加一筆資料，grid 自動排版。
+（迭代備註：原 icon 卡片版被使用者評為「AI 感」，2026-07-02 改為 bento 產品實境格。）
 
 ### D4：Server component 為主
 頁面與各區塊為 server component；client component 僅 `<Reveal>` 與 `<LandingNav>`（需監聽 scroll 狀態切換 backdrop-blur）。
@@ -40,7 +41,7 @@
 
 1. **Sticky Nav**：logo、錨點連結（功能／角色／開始使用）、「登入」ghost 按鈕 → `/login`、「免費註冊」橘色實心 → `/register`
 2. **Hero**：大粗體中文標題 + tagline + 雙 CTA + 橘色暖光暈截圖區
-3. **功能介紹區**：4 張陣列驅動卡片
+3. **功能介紹區**：4 張陣列驅動 bento 卡片（內嵌迷你產品 UI）
 4. **三種角色區**：學員／教練／管理員使用情境
 5. **CTA Banner + Footer**：footer 含一行技術棧標示（Next.js 16・Supabase・Prisma）
 

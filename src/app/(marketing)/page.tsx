@@ -75,11 +75,17 @@ export default function LandingPage() {
                 從個人訓練記錄到教練協作，一套流程走完。
               </p>
             </Reveal>
-            <div className="mt-14 grid gap-4 sm:grid-cols-2">
+            <div className="mt-14 grid gap-4 md:grid-cols-5">
               {features.map((feature, i) => (
-                <Reveal key={feature.title} delay={i * 75}>
-                  <div className="h-full rounded-lg border border-gray-800 bg-gray-900 p-6 transition-colors duration-150 hover:border-orange-500/40">
-                    <feature.icon className="h-8 w-8 text-orange-500" />
+                <Reveal
+                  key={feature.title}
+                  delay={i * 75}
+                  className={
+                    feature.span === "wide" ? "md:col-span-3" : "md:col-span-2"
+                  }
+                >
+                  <div className="flex h-full flex-col rounded-lg border border-gray-800 bg-gray-900 p-5 transition-colors duration-150 hover:border-orange-500/40">
+                    <feature.visual />
                     <h3 className="mt-4 text-lg font-bold text-white">
                       {feature.title}
                     </h3>
