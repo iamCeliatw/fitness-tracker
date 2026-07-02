@@ -31,9 +31,10 @@ test.describe("Coach Dashboard", () => {
     await page.goto("/dashboard/coach");
 
     // Either student list or empty state should be visible
-    const hasStudents = await page.getByText("本週訓練").first().isVisible().catch(() => false);
-    const hasEmpty = await page.getByText("目前沒有學員").isVisible().catch(() => false);
-    expect(hasStudents || hasEmpty).toBe(true);
+    // （auto-waiting 斷言：舊寫法用 isVisible() 立即檢查，頁面慢載入時會 flaky）
+    await expect(
+      page.getByText("目前沒有學員").or(page.getByText("本週訓練").first())
+    ).toBeVisible();
   });
 
   test("coach sees + 新增時段 button in schedule panel", async ({ page }) => {
