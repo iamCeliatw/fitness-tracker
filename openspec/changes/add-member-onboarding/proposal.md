@@ -20,7 +20,7 @@
 
 ### Modified Capabilities
 
-（無 — main specs 中無 user-registration capability，註冊行為變更全部落在新的 `member-onboarding` spec）
+- `admin-sidebar`: 導覽項目新增「成員」（/admin/members）
 
 ## Impact
 

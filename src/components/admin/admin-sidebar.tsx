@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Dumbbell, LogOut } from "lucide-react";
+import { LayoutDashboard, Dumbbell, LogOut, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 const navItems = [
   { label: "儀表板", href: "/admin", icon: LayoutDashboard },
+  { label: "成員", href: "/admin/members", icon: Users },
   { label: "動作庫", href: "/admin/exercises", icon: Dumbbell },
 ];
 

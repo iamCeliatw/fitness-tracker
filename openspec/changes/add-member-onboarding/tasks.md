@@ -12,16 +12,16 @@
 
 ## 3. Admin API
 
-- [ ] 3.1 `GET /api/admin/members`：org 成員 + User 資訊 + ACTIVE 配對摘要（驗證 ADMIN）
-- [ ] 3.2 `PATCH /api/admin/members/[id]`：COACH↔MEMBER 切換，降級防呆（ACTIVE 配對或未來 OPEN/BOOKED 時段 → 409），`setAuditActor`
-- [ ] 3.3 `POST /api/admin/coach-students` + `PATCH /api/admin/coach-students/[id]`：建立配對（重複 ACTIVE → 409）、結束配對（ENDED），`setAuditActor`
+- [x] 3.1 `GET /api/admin/members`：org 成員 + User 資訊 + ACTIVE 配對摘要（驗證 ADMIN）
+- [x] 3.2 `PATCH /api/admin/members/[id]`：COACH↔MEMBER 切換，降級防呆（ACTIVE 配對或未來 OPEN/BOOKED 時段 → 409），`setAuditActor`
+- [x] 3.3 `POST /api/admin/coach-students` + `PATCH /api/admin/coach-students/[id]`：建立配對（重複 ACTIVE → 409）、結束配對（ENDED），`setAuditActor`
 
 ## 4. Admin UI
 
-- [ ] 4.1 `/admin/members` 頁 + admin-sidebar「成員」連結（`requireRole("ADMIN")`，layout 分層契約）
-- [ ] 4.2 `member-list.tsx`：成員列表（名字/email/badge/加入時間）、升降按鈕 + AlertDialog、409 錯誤顯示；hover transition 規格
-- [ ] 4.3 `coach-pairing-panel.tsx`：教練卡片 + ACTIVE 學員、指派 Dialog（排除已配對學員）、結束配對 AlertDialog、空狀態「尚無配對學員」
-- [ ] 4.4 瀏覽器目視確認：升降角色、配對建立/結束、空狀態、窄螢幕排版
+- [x] 4.1 `/admin/members` 頁 + admin-sidebar「成員」連結（`requireRole("ADMIN")`，layout 分層契約）
+- [x] 4.2 `member-list.tsx`：成員列表（名字/email/badge/加入時間）、升降按鈕 + AlertDialog、409 錯誤顯示；hover transition 規格
+- [x] 4.3 `coach-pairing-panel.tsx`：教練卡片 + ACTIVE 學員、指派 Dialog（排除已配對學員）、結束配對 AlertDialog、空狀態「尚無配對學員」
+- [x] 4.4 瀏覽器目視確認：升降角色、配對建立/結束、空狀態、窄螢幕排版
 
 ## 5. E2E 測試
 
