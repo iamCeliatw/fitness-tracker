@@ -17,6 +17,6 @@
 
 ## 3. E2E 測試
 
-- [ ] 3.1 `e2e/landing.spec.ts`：happy path — `/` 渲染 hero 標題與 LIFTLOG logo；「免費開始」CTA 導向 `/register`
-- [ ] 3.2 edge case — 錨點導覽「功能」後 4 張功能卡片皆可見；nav「登入」導向 `/login`
-- [ ] 3.3 `npm run test:e2e` 全綠（含既有 spec 無回歸）
+- [x] 3.1 `e2e/landing.spec.ts`：happy path — `/` 渲染 hero 標題與 LIFTLOG logo；「免費開始」CTA 導向 `/register`
+- [x] 3.2 edge case — 錨點導覽「功能」後 4 張功能卡片皆可見；nav「登入」導向 `/login`
+- [x] 3.3 `npm run test:e2e` 全綠（含既有 spec 無回歸）
