@@ -1,14 +1,14 @@
 ## 1. Migration 與環境
 
-- [ ] 1.1 撰寫 `prisma/migrations/20260702000000_member_onboarding/migration.sql`：canonical `handle_new_user` trigger（先於 Supabase Dashboard 抄下現行定義備查）、預設 org 不存在則建立、無 membership 用戶回填 MEMBER、audit trigger 補掛 OrganizationMember + CoachStudent（全部 idempotent）
+- [x] 1.1 撰寫 `prisma/migrations/20260702000000_member_onboarding/migration.sql`：canonical `handle_new_user` trigger（先於 Supabase Dashboard 抄下現行定義備查）、預設 org 不存在則建立、無 membership 用戶回填 MEMBER、audit trigger 補掛 OrganizationMember + CoachStudent（全部 idempotent）
 - [ ] 1.2 於 Supabase SQL Editor 執行 migration SQL，驗證：trigger 存在、回填生效（`test@gmail.com`、`celia@gmail.com` 有 membership）
-- [ ] 1.3 `.env` 範本 + `.env.local` 加 `BOOTSTRAP_ADMIN_EMAIL`（部署文件註記 Vercel 需補設）
+- [x] 1.3 `.env` 範本 + `.env.local` 加 `BOOTSTRAP_ADMIN_EMAIL`（部署文件註記 Vercel 需補設）
 
 ## 2. 註冊流程
 
-- [ ] 2.1 `POST /api/auth/register`：zod 驗證 → signUp → 加入預設 org（MEMBER，失敗不擋註冊只 log）→ bootstrap admin 升級（不分大小寫、冪等）
-- [ ] 2.2 `register-form.tsx` 改呼叫 API，錯誤訊息維持（409 →「此 Email 已被註冊」）
-- [ ] 2.3 瀏覽器目視確認：註冊新帳號 → 登入 → 確認 membership 存在（`/api/auth/me` 或 DB）
+- [x] 2.1 `POST /api/auth/register`：zod 驗證 → signUp → 加入預設 org（MEMBER，失敗不擋註冊只 log）→ bootstrap admin 升級（不分大小寫、冪等）
+- [x] 2.2 `register-form.tsx` 改呼叫 API，錯誤訊息維持（409 →「此 Email 已被註冊」）
+- [x] 2.3 瀏覽器目視確認：註冊新帳號 → 登入 → 確認 membership 存在（`/api/auth/me` 或 DB）
 
 ## 3. Admin API
 
