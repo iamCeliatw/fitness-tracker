@@ -69,6 +69,11 @@ test.describe("Admin member management", () => {
     await page.getByRole("button", { name: "指派學員" }).first().click();
     await page.getByRole("combobox").click();
     await page.getByRole("option").first().click();
+    // 選中後 trigger 應顯示學員名稱，而非 userId
+    await expect(page.getByRole("combobox")).toContainText(/test (member|admin)/);
+    await expect(page.getByRole("combobox")).not.toContainText(
+      /[0-9a-f]{8}-[0-9a-f]{4}/
+    );
     await page.getByRole("button", { name: "建立配對" }).click();
     await expect(page.getByRole("button", { name: "結束配對" })).toBeVisible();
 

@@ -44,14 +44,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { count: existing } = await ctx.admin
+  // unique constraint 蓋在 (coachId, studentId, orgId) 不分 status：
+  // 已結束的舊配對要重新啟用（UPDATE），不能 INSERT
+  const { data: existing } = await ctx.admin
     .from("CoachStudent")
-    .select("id", { count: "exact", head: true })
+    .select("id, status")
     .eq("coachId", coachId)
     .eq("studentId", studentId)
-    .eq("status", "ACTIVE");
+    .eq("orgId", coachMembership.orgId)
+    .maybeSingle();
 
-  if ((existing ?? 0) > 0) {
+  if (existing?.status === "ACTIVE") {
     return NextResponse.json(
       { error: "此學員已配對給該教練" },
       { status: 409 }
@@ -59,6 +62,20 @@ export async function POST(req: NextRequest) {
   }
 
   await setAuditActor(ctx.userId);
+
+  if (existing) {
+    const { data, error } = await ctx.admin
+      .from("CoachStudent")
+      .update({ status: "ACTIVE", assignedAt: new Date().toISOString() })
+      .eq("id", existing.id)
+      .select("id, coachId, studentId, status")
+      .single();
+
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data, { status: 201 });
+  }
+
   const { data, error } = await ctx.admin
     .from("CoachStudent")
     .insert({

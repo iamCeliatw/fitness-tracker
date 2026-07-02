@@ -33,6 +33,10 @@
 - **WHEN** ADMIN 對同一教練＋學員組合重複建立 ACTIVE 配對
 - **THEN** API 回傳 409 與「此學員已配對給該教練」
 
+#### Scenario: 結束後重新配對
+- **WHEN** ADMIN 對曾經結束（ENDED）的教練＋學員組合再次建立配對
+- **THEN** 原配對列重新啟用（status 回 ACTIVE、assignedAt 更新），不新增重複列（unique constraint 不分 status）
+
 #### Scenario: 結束配對
 - **WHEN** ADMIN 對 ACTIVE 配對執行「結束配對」並確認
 - **THEN** 配對 status 變為 ENDED，教練卡片移除該學員

@@ -203,6 +203,10 @@ export default function CoachPairingPanel({
               <Select
                 value={selectedStudentId}
                 onValueChange={(value) => setSelectedStudentId(value ?? "")}
+                items={assignableStudents.map((s) => ({
+                  value: s.userId,
+                  label: s.user?.name ?? s.user?.email ?? s.userId,
+                }))}
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
                   <SelectValue placeholder="選擇學員" />
