@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Link from "next/link";
 
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,22 +41,16 @@ export default function RegisterForm() {
 
   async function onSubmit(values: RegisterFormValues) {
     setServerError(null);
-    const supabase = createClient();
 
-    const { error } = await supabase.auth.signUp({
-      email: values.email,
-      password: values.password,
-      options: {
-        data: { name: values.name },
-      },
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
     });
 
-    if (error) {
-      if (error.message.includes("already registered")) {
-        setServerError("此 Email 已被註冊");
-      } else {
-        setServerError(error.message);
-      }
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      setServerError(data?.error ?? "註冊失敗，請稍後再試");
       return;
     }
 

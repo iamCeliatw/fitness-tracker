@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
+import { endOfWeek, format, startOfWeek } from "date-fns";
 import { zhTW } from "date-fns/locale";
 import { Clock, User, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -33,11 +33,13 @@ export default function WeeklySchedule({
   const [endTime, setEndTime] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function handleAddSlot() {
     if (!startTime || !endTime) return;
     setSubmitting(true);
     setError(null);
+    setSuccess(null);
     try {
       const res = await fetch("/api/slots", {
         method: "POST",
@@ -51,6 +53,17 @@ export default function WeeklySchedule({
       if (!res.ok) {
         setError(data.error ?? "新增失敗");
       } else {
+        // 面板只顯示本週，非本週的新增要明確告知，避免看起來像沒成功
+        const slotStart = new Date(startTime);
+        const now = new Date();
+        const inCurrentWeek =
+          slotStart >= startOfWeek(now, { weekStartsOn: 1 }) &&
+          slotStart <= endOfWeek(now, { weekStartsOn: 1 });
+        setSuccess(
+          inCurrentWeek
+            ? "時段已新增"
+            : "時段已新增（不在本週範圍，未顯示於下方列表）"
+        );
         setShowForm(false);
         setStartTime("");
         setEndTime("");
@@ -65,6 +78,12 @@ export default function WeeklySchedule({
 
   return (
     <div className="space-y-3">
+      {success && (
+        <div className="rounded-lg border border-green-800 bg-green-900/30 px-3 py-2 text-sm text-green-300">
+          {success}
+        </div>
+      )}
+
       {slots.length === 0 && !showForm && (
         <div className="rounded-lg border border-gray-800 bg-gray-900 p-8 text-center text-gray-500">
           本週尚無排課
@@ -147,7 +166,10 @@ export default function WeeklySchedule({
 
       {!showForm && (
         <button
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            setShowForm(true);
+            setSuccess(null);
+          }}
           className="w-full rounded-lg border border-dashed border-gray-700 bg-gray-900/50 py-3 flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-300 hover:border-gray-600 transition-colors"
         >
           <Plus className="w-4 h-4" />

@@ -14,6 +14,7 @@ Admin 後台 SHALL 在桌面螢幕（md 以上）顯示固定 240px 左側 Sideb
 ### Requirement: Sidebar 導覽項目
 Sidebar SHALL 包含以下導覽項目（icon + label）：
 - 儀表板（/admin）
+- 成員（/admin/members）
 - 動作庫（/admin/exercises，預留）
 
 #### Scenario: 當前頁面 active 狀態
