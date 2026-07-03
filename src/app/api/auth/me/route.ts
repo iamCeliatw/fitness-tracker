@@ -12,11 +12,17 @@ export async function GET() {
   }
 
   const admin = await createAdminClient();
-  const { data: dbUser } = await admin
-    .from("User")
-    .select("role, name, email")
-    .eq("id", user.id)
-    .single();
+  const [{ data: dbUser }, { data: membership }] = await Promise.all([
+    admin.from("User").select("role, name, email").eq("id", user.id).single(),
+    admin
+      .from("OrganizationMember")
+      .select("role")
+      .eq("userId", user.id)
+      .maybeSingle(),
+  ]);
 
-  return NextResponse.json(dbUser ?? { role: "USER" });
+  return NextResponse.json({
+    ...(dbUser ?? { role: "USER" }),
+    orgRole: membership?.role ?? null,
+  });
 }
