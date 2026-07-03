@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Dashboard 桌面左側 Nav
 Dashboard layout SHALL 在桌面（md 以上）顯示固定 224px 左側 nav，頂部品牌字為 `LIFT<span>LOG</span>`（LOG 為 orange-500），導覽項目（icon + label）依角色條件顯示：
@@ -55,10 +55,3 @@ Dashboard layout SHALL 在手機（< md）顯示固定底部 Tab Bar，最多 5 
 #### Scenario: Active Tab 高亮
 - **WHEN** 用戶位於 /dashboard/body
 - **THEN** 「體重」Tab 呈現 active 樣式（text-orange-400），其餘 text-gray-500
-
-### Requirement: Dashboard 內容寬度
-Dashboard 所有子頁面的內容寬度 SHALL 調整為 max-w-5xl，padding 維持 p-6。
-
-#### Scenario: 桌面寬螢幕顯示
-- **WHEN** 用戶在 1440px 螢幕開啟 /dashboard
-- **THEN** 內容區最大寬度為 64rem（max-w-5xl），水平置中

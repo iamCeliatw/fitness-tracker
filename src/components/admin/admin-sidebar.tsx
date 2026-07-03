@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Dumbbell, LogOut, Users } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { LayoutDashboard, Dumbbell, Users } from "lucide-react";
+import LogoutButton from "@/components/auth/logout-button";
 
 const navItems = [
   { label: "儀表板", href: "/admin", icon: LayoutDashboard },
@@ -14,21 +13,13 @@ const navItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  }
 
   return (
     <aside className="hidden md:flex flex-col w-60 shrink-0 bg-gray-900 border-r border-gray-800 h-screen sticky top-0">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-gray-800">
-        <span className="text-lg font-bold text-white tracking-tight">
-          Fit<span className="text-orange-400">Tracker</span>
+        <span className="text-lg font-black text-white tracking-tight">
+          LIFT<span className="text-orange-500">LOG</span>
         </span>
         <p className="text-xs text-gray-500 mt-0.5">Admin</p>
       </div>
@@ -56,13 +47,7 @@ export default function AdminSidebar() {
 
       {/* Logout */}
       <div className="px-3 py-4 border-t border-gray-800">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-150 w-full"
-        >
-          <LogOut className="h-5 w-5 shrink-0" />
-          登出
-        </button>
+        <LogoutButton />
       </div>
     </aside>
   );
