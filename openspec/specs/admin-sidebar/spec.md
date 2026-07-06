@@ -15,7 +15,7 @@ Admin 後台 SHALL 在桌面螢幕（md 以上）顯示固定 240px 左側 Sideb
 Sidebar SHALL 包含以下導覽項目（icon + label）：
 - 儀表板（/admin）
 - 成員（/admin/members）
-- 動作庫（/admin/exercises，預留）
+- 動作庫（/admin/exercises）
 
 #### Scenario: 當前頁面 active 狀態
 - **WHEN** 用戶位於某個 admin 頁面
@@ -24,6 +24,10 @@ Sidebar SHALL 包含以下導覽項目（icon + label）：
 #### Scenario: Hover 效果
 - **WHEN** 用戶 hover 非 active 導覽項目
 - **THEN** 顯示 hover 樣式（bg-gray-800 text-white），有 transition-colors duration-150
+
+#### Scenario: 動作庫入口可用
+- **WHEN** admin 點擊「動作庫」導覽項目
+- **THEN** 進入 /admin/exercises 動作庫管理頁（不再 404）
 
 ### Requirement: Sidebar 登出功能
 Sidebar 底部 SHALL 提供登出按鈕，點擊後執行 Supabase signOut 並導向 /login。
