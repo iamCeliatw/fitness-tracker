@@ -4,6 +4,10 @@ dotenv.config(); // fallback to .env for anything not in .env.local
 
 import { defineConfig, devices } from "@playwright/test";
 
+// port 3000 可能被其他專案的 dev server 佔用（reuseExistingServer 會誤認），
+// 需要時用 E2E_PORT 指定獨立 port，例：E2E_PORT=3100 npm run test:e2e
+const PORT = process.env.E2E_PORT ?? "3000";
+
 export default defineConfig({
   globalSetup: "./e2e/global-setup.ts",
   testDir: "./e2e",
@@ -13,7 +17,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: "list",
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PORT}`,
     trace: "on-first-retry",
     actionTimeout: 10_000,
   },
@@ -25,8 +29,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    command: `npm run dev -- --port ${PORT}`,
+    url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
