@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { setAuditActor } from "@/lib/auth-helpers";
+import { expireStalePending } from "@/lib/appointments";
 
 const slotSchema = z.object({
   startTime: z.string().datetime("無效的時間格式"),
@@ -21,6 +22,8 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (!membership) return NextResponse.json({ error: "Not a member of any organization" }, { status: 403 });
+
+  await expireStalePending(membership.orgId);
 
   const { data: slots } = await admin
     .from("AppointmentSlot")

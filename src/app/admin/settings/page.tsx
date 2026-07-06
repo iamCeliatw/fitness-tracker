@@ -8,14 +8,17 @@ export default async function AdminSettingsPage() {
 
   const { data: org } = await admin
     .from("Organization")
-    .select("id, name, bookingCutoffHours")
+    .select("id, name, bookingCutoffHours, approvalTimeoutHours")
     .single();
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-2">系統設定</h1>
       <p className="text-gray-400 mb-6">{org?.name ?? "組織設定"}</p>
-      <OrgSettingsForm bookingCutoffHours={org?.bookingCutoffHours ?? 2} />
+      <OrgSettingsForm
+        bookingCutoffHours={org?.bookingCutoffHours ?? 2}
+        approvalTimeoutHours={org?.approvalTimeoutHours ?? 24}
+      />
     </div>
   );
 }

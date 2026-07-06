@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { setAuditActor } from "@/lib/auth-helpers";
+import { expireStalePending } from "@/lib/appointments";
 
 const bookSchema = z.object({
   slotId: z.string().min(1),
@@ -14,6 +15,14 @@ export async function GET(_req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const admin = await createAdminClient();
+
+  const { data: membership } = await admin
+    .from("OrganizationMember")
+    .select("orgId")
+    .eq("userId", user.id)
+    .single();
+  if (membership) await expireStalePending(membership.orgId);
+
   const { data: appointments } = await admin
     .from("Appointment")
     .select("*, slot:AppointmentSlot(*), coach:User!Appointment_coachId_fkey(id, name, email)")
@@ -42,7 +51,7 @@ export async function POST(req: NextRequest) {
   // Fetch slot and org settings
   const { data: slot } = await admin
     .from("AppointmentSlot")
-    .select("*, org:Organization(bookingCutoffHours)")
+    .select("*, org:Organization(bookingCutoffHours, approvalTimeoutHours)")
     .eq("id", slotId)
     .single();
 
@@ -50,7 +59,8 @@ export async function POST(req: NextRequest) {
   if (slot.status !== "OPEN") return NextResponse.json({ error: "此時段已被預約" }, { status: 409 });
 
   // Cutoff check
-  const cutoffHours = (slot.org as { bookingCutoffHours: number })?.bookingCutoffHours ?? 2;
+  const org = slot.org as { bookingCutoffHours: number; approvalTimeoutHours: number } | null;
+  const cutoffHours = org?.bookingCutoffHours ?? 2;
   const cutoffMs = cutoffHours * 60 * 60 * 1000;
   if (new Date(slot.startTime).getTime() - Date.now() < cutoffMs) {
     return NextResponse.json(
@@ -64,7 +74,7 @@ export async function POST(req: NextRequest) {
     .from("Appointment")
     .select("id, slot:AppointmentSlot(startTime, endTime)")
     .eq("studentId", user.id)
-    .eq("status", "CONFIRMED");
+    .in("status", ["PENDING", "CONFIRMED"]);
 
   const hasOverlap = (conflicts ?? []).some((apt) => {
     const s = apt.slot as unknown as { startTime: string; endTime: string } | null;
@@ -79,6 +89,13 @@ export async function POST(req: NextRequest) {
 
   await setAuditActor(user.id);
 
+  // expiresAt 建立時凍結 = min(now + 回覆期限, 開課前 cutoff)
+  const timeoutHours = org?.approvalTimeoutHours ?? 24;
+  const expiresAt = new Date(Math.min(
+    Date.now() + timeoutHours * 60 * 60 * 1000,
+    new Date(slot.startTime).getTime() - cutoffMs
+  )).toISOString();
+
   // Create appointment + update slot status (sequential, no transaction)
   const { data: appointment, error: aptError } = await admin
     .from("Appointment")
@@ -89,7 +106,8 @@ export async function POST(req: NextRequest) {
       coachId: slot.coachId,
       orgId: slot.orgId,
       notes: notes ?? null,
-      status: "CONFIRMED",
+      status: "PENDING",
+      expiresAt,
       createdAt: new Date().toISOString(),
     })
     .select()

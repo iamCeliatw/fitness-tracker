@@ -71,8 +71,12 @@ test.describe("Appointment Booking — student flow", () => {
       // After cancel, booking list should update
       await expect(page.getByRole("heading", { name: "預約課程" })).toBeVisible();
     } else {
-      // No appointments to cancel — empty state should show
-      await expect(page.getByText("目前沒有預約記錄")).toBeVisible();
+      // 確認制之後，列表可能有終態預約卡片（已拒絕/已過期/已取消，皆無取消按鈕）
+      // 「沒有取消按鈕」不再等於「空狀態」：空狀態或任一預約卡片其一可見即可
+      const section = page.locator("section", { has: page.getByText("我的預約") });
+      await expect(
+        page.getByText("目前沒有預約記錄").or(section.locator("div.rounded-lg").first())
+      ).toBeVisible();
     }
   });
 });

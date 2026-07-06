@@ -1,19 +1,22 @@
 import { requireOrgRole } from "@/lib/auth-helpers";
 import { createAdminClient } from "@/lib/supabase/server";
+import { expireStalePending } from "@/lib/appointments";
 import StudentProgressList from "@/components/coach/student-progress-list";
 import WeeklySchedule from "@/components/coach/weekly-schedule";
+import PendingAppointments from "@/components/coach/pending-appointments";
 import { startOfWeek, endOfWeek, subDays } from "date-fns";
 
 export default async function CoachDashboardPage() {
   const { userId, orgId } = await requireOrgRole("COACH");
   const admin = await createAdminClient();
+  await expireStalePending(orgId);
 
   const now = new Date();
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
   const sevenDaysAgo = subDays(now, 7).toISOString();
 
-  const [{ data: coachStudents }, { data: slots }] = await Promise.all([
+  const [{ data: coachStudents }, { data: slots }, { data: pendingAppointments }] = await Promise.all([
     admin
       .from("CoachStudent")
       .select("studentId, student:User!CoachStudent_studentId_fkey(id, name, email)")
@@ -22,11 +25,17 @@ export default async function CoachDashboardPage() {
       .eq("status", "ACTIVE"),
     admin
       .from("AppointmentSlot")
-      .select("id, startTime, endTime, status, appointment:Appointment(id, studentId, student:User!Appointment_studentId_fkey(id, name))")
+      .select("id, startTime, endTime, status, appointment:Appointment(id, status, studentId, student:User!Appointment_studentId_fkey(id, name))")
       .eq("coachId", userId)
       .gte("startTime", weekStart.toISOString())
       .lte("endTime", weekEnd.toISOString())
       .order("startTime", { ascending: true }),
+    admin
+      .from("Appointment")
+      .select("id, notes, student:User!Appointment_studentId_fkey(id, name), slot:AppointmentSlot(id, startTime, endTime)")
+      .eq("coachId", userId)
+      .eq("status", "PENDING")
+      .order("createdAt", { ascending: true }),
   ]);
 
   const studentIds = (coachStudents ?? []).map((cs) => cs.studentId);
@@ -73,6 +82,14 @@ export default async function CoachDashboardPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">教練總覽</h1>
+
+      <section className="mb-6">
+        <h2 className="text-lg font-semibold mb-3 text-gray-300">待確認預約</h2>
+        <PendingAppointments
+          appointments={(pendingAppointments ?? []) as unknown as Parameters<typeof PendingAppointments>[0]["appointments"]}
+        />
+      </section>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <section>
           <h2 className="text-lg font-semibold mb-3 text-gray-300">我的學員</h2>

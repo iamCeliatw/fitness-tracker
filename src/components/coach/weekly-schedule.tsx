@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 type SlotAppointment = {
   id: string;
+  status: string;
   studentId: string;
   student: { id: string; name: string | null } | null;
 };
@@ -93,11 +94,16 @@ export default function WeeklySchedule({
       {slots.map((slot) => {
         const isPast = new Date(slot.endTime) < new Date();
         const student = slot.appointment?.student;
+        const isPending = slot.appointment?.status === "PENDING";
         return (
           <div
             key={slot.id}
-            className={`rounded-lg border bg-gray-900 p-4 transition-colors duration-150 hover:border-gray-700 ${
-              isPast ? "border-gray-800 opacity-60" : "border-gray-700"
+            className={`rounded-lg border bg-gray-900 p-4 transition-colors duration-150 ${
+              isPast
+                ? "border-gray-800 opacity-60 hover:border-gray-700"
+                : isPending
+                  ? "border-orange-400/40 hover:border-orange-400/70"
+                  : "border-gray-700 hover:border-gray-600"
             }`}
           >
             <div className="flex items-center gap-2 text-sm text-gray-400 mb-1">
@@ -106,6 +112,11 @@ export default function WeeklySchedule({
                 {format(new Date(slot.startTime), "M月d日 (EEE) HH:mm", { locale: zhTW })}–
                 {format(new Date(slot.endTime), "HH:mm")}
               </span>
+              {isPending && (
+                <span className="ml-auto px-2 py-0.5 rounded-full border border-orange-400/40 bg-orange-400/10 text-xs text-orange-400">
+                  待確認
+                </span>
+              )}
             </div>
             {student ? (
               <div className="flex items-center gap-2 text-sm text-gray-300 pl-6">

@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 const settingsSchema = z.object({
   bookingCutoffHours: z.number().int().positive("必須為正整數"),
+  approvalTimeoutHours: z.number().int().positive("必須為正整數"),
 });
 
 async function getAdminUser() {
@@ -28,10 +29,10 @@ export async function GET() {
 
   const { data: org } = await ctx.admin
     .from("Organization")
-    .select("id, name, bookingCutoffHours")
+    .select("id, name, bookingCutoffHours, approvalTimeoutHours")
     .single();
 
-  return NextResponse.json(org ?? { bookingCutoffHours: 2 });
+  return NextResponse.json(org ?? { bookingCutoffHours: 2, approvalTimeoutHours: 24 });
 }
 
 export async function PATCH(req: NextRequest) {
@@ -51,7 +52,10 @@ export async function PATCH(req: NextRequest) {
 
   const { data, error } = await ctx.admin
     .from("Organization")
-    .update({ bookingCutoffHours: parsed.data.bookingCutoffHours })
+    .update({
+      bookingCutoffHours: parsed.data.bookingCutoffHours,
+      approvalTimeoutHours: parsed.data.approvalTimeoutHours,
+    })
     .eq("id", org.id)
     .select()
     .single();
