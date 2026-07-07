@@ -196,6 +196,16 @@ test.describe("Appointment approval — coach confirmation flow", () => {
     await expect(
       availableSection.locator("div.rounded-lg").filter({ hasText: "06:15" }).first(),
     ).toBeVisible();
+
+    // 再預約同一時段：Appointment row 已存在（REJECTED、slotId unique）
+    // → 走 UPDATE 重啟路徑而非 INSERT，預約需再次成功進入待確認
+    await availableSection
+      .locator("div.rounded-lg")
+      .filter({ hasText: "06:15" })
+      .first()
+      .getByRole("button", { name: "預約" })
+      .click();
+    await expect(myAppointmentCard(page).getByText("待確認")).toBeVisible();
   });
 
   test("pending appointment past expiresAt is settled as expired on read", async ({ page }) => {
