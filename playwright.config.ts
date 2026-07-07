@@ -29,7 +29,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run dev -- --port ${PORT}`,
+    // 直接呼叫 next dev，不經 npm 包裝：Windows 上 Playwright 殺 npm 時
+    // 孫子程序可能存活成孤兒，Next 單實例鎖會擋掉下一次啟動
+    command: `npx next dev --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
