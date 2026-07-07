@@ -4,16 +4,24 @@ import { expireStalePending } from "@/lib/appointments";
 import StudentProgressList from "@/components/coach/student-progress-list";
 import WeeklySchedule from "@/components/coach/weekly-schedule";
 import PendingAppointments from "@/components/coach/pending-appointments";
-import { startOfWeek, endOfWeek, subDays } from "date-fns";
+import { startOfWeek, endOfWeek, subDays, addWeeks, format } from "date-fns";
+import Link from "next/link";
 
-export default async function CoachDashboardPage() {
+export default async function CoachDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
   const { userId, orgId } = await requireOrgRole("COACH");
   const admin = await createAdminClient();
   await expireStalePending(orgId);
 
+  const { week } = await searchParams;
+  const weekOffset = Number.parseInt(week ?? "0", 10) || 0;
+
   const now = new Date();
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+  const weekStart = addWeeks(startOfWeek(now, { weekStartsOn: 1 }), weekOffset);
+  const weekEnd = addWeeks(endOfWeek(now, { weekStartsOn: 1 }), weekOffset);
   const sevenDaysAgo = subDays(now, 7).toISOString();
 
   const [{ data: coachStudents }, { data: slots }, { data: pendingAppointments }] = await Promise.all([
@@ -96,10 +104,42 @@ export default async function CoachDashboardPage() {
           <StudentProgressList students={students} />
         </section>
         <section>
-          <h2 className="text-lg font-semibold mb-3 text-gray-300">本週行程</h2>
+          <div className="flex items-center mb-3">
+            <h2 className="text-lg font-semibold text-gray-300">
+              {weekOffset === 0 ? "本週行程" : "行程"}
+            </h2>
+            <div className="ml-auto flex items-center gap-2 text-sm">
+              {weekOffset !== 0 && (
+                <Link
+                  href="/dashboard/coach"
+                  className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  回到本週
+                </Link>
+              )}
+              <Link
+                href={`/dashboard/coach?week=${weekOffset - 1}`}
+                aria-label="上一週"
+                className="px-1.5 text-lg leading-none text-gray-500 hover:text-white transition-colors"
+              >
+                ‹
+              </Link>
+              <span className="text-gray-400">
+                {format(weekStart, "M/d")} – {format(weekEnd, "M/d")}
+              </span>
+              <Link
+                href={`/dashboard/coach?week=${weekOffset + 1}`}
+                aria-label="下一週"
+                className="px-1.5 text-lg leading-none text-gray-500 hover:text-white transition-colors"
+              >
+                ›
+              </Link>
+            </div>
+          </div>
           <WeeklySchedule
             slots={(slots ?? []) as unknown as Parameters<typeof WeeklySchedule>[0]["slots"]}
             coachId={userId}
+            weekStartIso={weekStart.toISOString()}
           />
         </section>
       </div>

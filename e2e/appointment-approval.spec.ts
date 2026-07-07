@@ -29,15 +29,6 @@ async function pg<T = unknown>(path: string, init?: RequestInit): Promise<T[]> {
   return text ? JSON.parse(text) : [];
 }
 
-/**
- * 時間欄位是 TIMESTAMP 無時區，PostgREST 讀回無 Z 後綴、JS 以本地時間解析。
- * 寫入本地 wall time（無 Z）才能讓頁面顯示 06:15（帶 Z 會被 -8h 顯示成 22:15）。
- */
-function toLocalIso(d: Date) {
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:00`;
-}
-
 function slotWindow() {
   const start = new Date(Date.now() + 21 * 24 * 60 * 60 * 1000);
   start.setHours(6, 15, 0, 0);
@@ -79,8 +70,8 @@ async function createOpenSlot(coachId: string, orgId: string) {
       id,
       coachId,
       orgId,
-      startTime: toLocalIso(start),
-      endTime: toLocalIso(end),
+      startTime: start.toISOString(),
+      endTime: end.toISOString(),
       status: "OPEN",
       createdAt: new Date().toISOString(),
     }),

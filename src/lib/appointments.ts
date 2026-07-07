@@ -1,5 +1,8 @@
 import { createAdminClient } from "@/lib/supabase/server";
 
+/** 時段固定一小時 */
+export const SLOT_DURATION_MS = 60 * 60 * 1000;
+
 /**
  * 惰性結算過期的 PENDING 預約（無 cron，讀取前呼叫）。
  * 順序：先轉 EXPIRED 再釋放 slot——失敗時偏保守（slot 晚一次讀取才釋出），

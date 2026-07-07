@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { setAuditActor } from "@/lib/auth-helpers";
-import { expireStalePending } from "@/lib/appointments";
+import { expireStalePending, SLOT_DURATION_MS } from "@/lib/appointments";
 
 const slotSchema = z.object({
   startTime: z.string().datetime("無效的時間格式"),
-  endTime: z.string().datetime("無效的時間格式"),
 });
 
 export async function GET(req: NextRequest) {
@@ -59,10 +58,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
 
-  const { startTime, endTime } = parsed.data;
-  if (new Date(startTime) >= new Date(endTime)) {
-    return NextResponse.json({ error: "開始時間必須早於結束時間" }, { status: 400 });
-  }
+  const { startTime } = parsed.data;
+  const endTime = new Date(new Date(startTime).getTime() + SLOT_DURATION_MS).toISOString();
 
   // Conflict check: coach's existing OPEN/BOOKED slots
   const { data: conflicts } = await admin
