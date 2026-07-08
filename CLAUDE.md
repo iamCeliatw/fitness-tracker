@@ -208,10 +208,12 @@ src/
 - `.env.local` 含 `TEST_USER_EMAIL`、`TEST_USER_PASSWORD`、`TEST_COACH_EMAIL`、`TEST_COACH_PASSWORD`、`TEST_ADMIN_EMAIL`、`TEST_ADMIN_PASSWORD`
 - `npm run test:e2e` headless 跑通才算就緒
 
-**E2E 穩定性三規則（2026-07-02 session 覆盤，E2E 與手動測試共用同一個 Supabase dev DB）：**
+**E2E 穩定性五規則（2026-07-02 / 2026-07-08 session 覆盤，E2E 與手動測試共用同一個 Supabase dev DB）：**
 1. 斷言一律用 auto-waiting（`expect(locator).toBeVisible()`），**禁止** `isVisible()` 立即檢查——頁面串流慢就 flaky
 2. 會寫 DB 的測試**開場先重置自身相關狀態**（自癒設計，例：`resetCoachPairings`），不可假設環境乾淨——失敗殘留與並行的手動測試都會毒害下次執行
 3. locator 圈定在目標卡片/列（`.filter({ hasText })` + section 範圍），不假設元素全域唯一——共用 DB 裡隨時可能多出同類資料
+4. 跑 E2E 前先查 port 殘留（`netstat -ano | findstr :3000`）：背景停掉的 dev server 會留孤兒 `start-server.js`（佔 port + 回應不穩），`reuseExistingServer` 會重用它。E2E **大面積不相干失敗＝先清環境重跑**，並區分環境污染與前次失敗殘留，不急著改 code/測試
+5. migration/seed 要寫入 test account 的角色或 membership 前，先 `grep e2e/` 確認沒有測試讀寫同一狀態——測試帳號的角色狀態也是共用資源（例：admin-members 升降測試 vs migration 升 OWNER 互相覆蓋）
 
 ### 環境變數同步規則
 
@@ -226,7 +228,7 @@ src/
 
 - **Next.js 16**：middleware 改名 `src/proxy.ts`（export `proxy`），詳見 AGENTS.md，寫 code 前查 `node_modules/next/dist/docs/`
 - **shadcn/ui 是 Base UI 底（非 Radix）**：`Select.Value` 預設渲染原始 value，value≠label 時必須給 `Select.Root` 傳 `items`；`onValueChange` 參數型別是 `string | null`
-- **寫任何 DB insert 前讀完整 model**：確認所有 NOT NULL 欄位（含關聯 id 如 `orgId`）與 unique constraint 範圍——特別注意 constraint 是否**不分 status**（如 `CoachStudent`，重新配對要 UPDATE 重新啟用而非 INSERT）
+- **寫任何 DB insert 前讀完整 model**：確認所有 NOT NULL 欄位（含關聯 id 如 `orgId`）與 unique constraint 範圍——特別注意 constraint 是否**不分 status**（如 `CoachStudent`，重新配對要 UPDATE 重新啟用而非 INSERT）。反方向也要防：payload **不得含 model 不存在的欄位**（不是每個 model 都有 `updatedAt`——BodyRecord 就沒有，多送會整筆 insert 失敗）
 
 ### 開發節奏
 
