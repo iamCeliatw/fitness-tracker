@@ -58,7 +58,6 @@ export async function POST(req: NextRequest) {
       muscleMass: muscleMass ?? null,
       notes: notes ?? null,
       createdAt: now,
-      updatedAt: now,
     })
     .select()
     .single();
