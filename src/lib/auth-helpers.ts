@@ -39,7 +39,7 @@ export async function requireRole(role: "USER" | "ADMIN") {
   return { dbUser };
 }
 
-export async function requireOrgRole(role: OrgRole) {
+export async function requireOrgRole(...roles: OrgRole[]) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -49,16 +49,42 @@ export async function requireOrgRole(role: OrgRole) {
   if (error || !user) redirect("/login");
 
   const admin = await createAdminClient();
+  // 一人一館：user 至多一筆 membership，先取 membership 再驗角色
   const { data: membership } = await admin
     .from("OrganizationMember")
     .select("role, orgId, org:Organization(bookingCutoffHours)")
     .eq("userId", user.id)
-    .eq("role", role)
     .single();
 
-  if (!membership) redirect("/dashboard");
+  if (!membership || !roles.includes(membership.role as OrgRole)) {
+    redirect("/dashboard");
+  }
 
-  return { userId: user.id, orgId: membership.orgId, membership };
+  return {
+    userId: user.id,
+    orgId: membership.orgId,
+    role: membership.role as OrgRole,
+    membership,
+  };
+}
+
+// API route 版 OWNER 守門（回 null 而非 redirect）；org 由呼叫者 membership 決定
+export async function getOwnerContext() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const admin = await createAdminClient();
+  const { data: membership } = await admin
+    .from("OrganizationMember")
+    .select("orgId, role")
+    .eq("userId", user.id)
+    .single();
+
+  if (!membership || membership.role !== "OWNER") return null;
+  return { userId: user.id, orgId: membership.orgId, admin };
 }
 
 export async function setAuditActor(userId: string) {

@@ -77,6 +77,7 @@ model Organization {
   name               String
   slug               String   @unique
   plan               String   @default("FREE") // FREE | PRO | ENTERPRISE
+  inviteCode         String   @unique // 8 碼大寫英數，MEMBER 以此加入
   bookingCutoffHours Int      @default(2)
   approvalTimeoutHours Int    @default(24)
   createdAt          DateTime @default(now())

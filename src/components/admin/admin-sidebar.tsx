@@ -2,17 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Dumbbell, Users } from "lucide-react";
+import { LayoutDashboard, Dumbbell, Users, Settings } from "lucide-react";
 import LogoutButton from "@/components/auth/logout-button";
 
 const navItems = [
-  { label: "儀表板", href: "/admin", icon: LayoutDashboard },
-  { label: "成員", href: "/admin/members", icon: Users },
-  { label: "動作庫", href: "/admin/exercises", icon: Dumbbell },
+  { label: "儀表板", href: "/admin", icon: LayoutDashboard, ownerOnly: false },
+  { label: "成員", href: "/admin/members", icon: Users, ownerOnly: false },
+  { label: "動作庫", href: "/admin/exercises", icon: Dumbbell, ownerOnly: false },
+  { label: "設定", href: "/admin/settings", icon: Settings, ownerOnly: true },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({
+  isAdmin,
+  isOwner,
+}: {
+  isAdmin: boolean;
+  isOwner: boolean;
+}) {
   const pathname = usePathname();
+  // ADMIN 限定項 vs OWNER 限定項（設定歸 org OWNER 管）
+  const visibleItems = navItems.filter((item) =>
+    item.ownerOnly ? isOwner : isAdmin
+  );
 
   return (
     <aside className="hidden md:flex flex-col w-60 shrink-0 bg-gray-900 border-r border-gray-800 h-screen sticky top-0">
@@ -26,7 +37,7 @@ export default function AdminSidebar() {
 
       {/* Nav items */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map(({ label, href, icon: Icon }) => {
+        {visibleItems.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href));
           return (
             <Link
