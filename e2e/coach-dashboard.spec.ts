@@ -76,9 +76,9 @@ test.describe("Coach Dashboard — add slot feedback", () => {
     await page.waitForLoadState("networkidle");
 
     // 兩週後的時段（必在「本週行程」範圍外，且不與既有時段重疊）
+    // 時段固定一小時：表單只填開始時間
     const start = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
     start.setHours(10, 0, 0, 0);
-    const end = new Date(start.getTime() + 60 * 60 * 1000);
     const toLocal = (d: Date) =>
       `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
         d.getDate()
@@ -87,19 +87,17 @@ test.describe("Coach Dashboard — add slot feedback", () => {
       ).padStart(2, "0")}`;
 
     await page.getByRole("button", { name: "新增時段" }).click();
-    const inputs = page.locator("input[type=datetime-local]");
-    await inputs.nth(0).fill(toLocal(start));
-    await inputs.nth(1).fill(toLocal(end));
+    await page.locator("input[type=datetime-local]").fill(toLocal(start));
     await page.getByRole("button", { name: "確認新增" }).click();
 
-    // 成功回饋必須可見，且註明不在本週範圍
+    // 成功回饋必須可見，且註明不在目前檢視的週範圍
     await expect(page.getByText(/時段已新增/)).toBeVisible();
-    await expect(page.getByText(/不在本週/)).toBeVisible();
+    await expect(page.getByText(/不在此週/)).toBeVisible();
 
     // 清理：刪除剛建立的時段
     await fetch(
       `${process.env.SUPABASE_URL}/rest/v1/AppointmentSlot?startTime=eq.${encodeURIComponent(
-        start.toISOString().replace("Z", "")
+        start.toISOString()
       )}`,
       {
         method: "DELETE",

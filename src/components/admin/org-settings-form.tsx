@@ -3,9 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function OrgSettingsForm({ bookingCutoffHours }: { bookingCutoffHours: number }) {
+export default function OrgSettingsForm({
+  bookingCutoffHours,
+  approvalTimeoutHours,
+}: {
+  bookingCutoffHours: number;
+  approvalTimeoutHours: number;
+}) {
   const router = useRouter();
   const [hours, setHours] = useState(bookingCutoffHours);
+  const [timeoutHours, setTimeoutHours] = useState(approvalTimeoutHours);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -16,7 +23,7 @@ export default function OrgSettingsForm({ bookingCutoffHours }: { bookingCutoffH
       const res = await fetch("/api/admin/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingCutoffHours: hours }),
+        body: JSON.stringify({ bookingCutoffHours: hours, approvalTimeoutHours: timeoutHours }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -60,10 +67,22 @@ export default function OrgSettingsForm({ bookingCutoffHours }: { bookingCutoffH
         <span className="text-sm text-gray-400">小時前不受理預約</span>
       </div>
 
+      <div className="mt-4 flex items-center gap-4">
+        <label className="text-sm text-gray-400">教練回覆期限</label>
+        <input
+          type="number"
+          min={1}
+          value={timeoutHours}
+          onChange={(e) => setTimeoutHours(Number(e.target.value))}
+          className="w-20 rounded-md bg-gray-800 border border-gray-700 px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-blue-500"
+        />
+        <span className="text-sm text-gray-400">小時內未確認自動過期</span>
+      </div>
+
       <div className="mt-6 flex justify-end">
         <button
           onClick={handleSave}
-          disabled={saving || hours < 1}
+          disabled={saving || hours < 1 || timeoutHours < 1}
           className="px-4 py-2 rounded-md text-sm bg-blue-600 hover:bg-blue-500 transition-colors disabled:opacity-50"
         >
           {saving ? "儲存中…" : "儲存"}

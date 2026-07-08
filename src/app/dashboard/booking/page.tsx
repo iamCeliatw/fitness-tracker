@@ -1,5 +1,6 @@
 import { requireAuth } from "@/lib/auth-helpers";
 import { createAdminClient } from "@/lib/supabase/server";
+import { expireStalePending } from "@/lib/appointments";
 import BookingSlotList from "@/components/booking/booking-slot-list";
 import MyAppointmentList from "@/components/booking/my-appointment-list";
 
@@ -16,6 +17,8 @@ export default async function BookingPage() {
   const orgId = membership?.orgId ?? null;
   const cutoffHours = (membership?.org as unknown as { bookingCutoffHours: number } | null)?.bookingCutoffHours ?? 2;
 
+  if (orgId) await expireStalePending(orgId);
+
   const [{ data: slots }, { data: appointments }] = await Promise.all([
     orgId
       ? admin
@@ -27,9 +30,8 @@ export default async function BookingPage() {
       : { data: [] },
     admin
       .from("Appointment")
-      .select("id, status, notes, createdAt, slot:AppointmentSlot(id, startTime, endTime), coach:User!Appointment_coachId_fkey(id, name)")
+      .select("id, status, notes, rejectedReason, createdAt, slot:AppointmentSlot(id, startTime, endTime), coach:User!Appointment_coachId_fkey(id, name)")
       .eq("studentId", user.id)
-      .eq("status", "CONFIRMED")
       .order("createdAt", { ascending: false }),
   ]);
 

@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Student can book an available slot
 學員（OrgRole = MEMBER）SHALL 能預約狀態為 OPEN 的 AppointmentSlot，系統需在建立 Appointment 前驗證衝突與截止時間規則。預約建立後為 **PENDING**（等待教練確認），時段立即鎖定（先到先得），並凍結 `expiresAt`。
@@ -38,6 +38,8 @@
 - **WHEN** user sends DELETE /api/appointments/[id] for an appointment whose status is REJECTED, EXPIRED, or CANCELLED
 - **THEN** system returns 409
 
+## ADDED Requirements
+
 ### Requirement: Student sees appointment status
 學員預約列表 SHALL 以 badge 呈現五種狀態：待確認（橘）/ 已確認（綠）/ 已拒絕（紅）/ 已過期（灰）/ 已取消（灰）。REJECTED 且有 `rejectedReason` 時 SHALL 顯示原因；PENDING 與 CONFIRMED 可取消。
 
@@ -52,14 +54,3 @@
 #### Scenario: Student views an expired appointment
 - **WHEN** student's PENDING appointment passed its expiresAt and a read has settled it
 - **THEN** the card shows 「已過期」badge with no cancel action
-
-### Requirement: Booking cutoff hours is configurable per organization
-管理員（Role = ADMIN）SHALL 能在 /admin/settings 調整 Organization.bookingCutoffHours，預設值為 2。
-
-#### Scenario: Admin updates booking cutoff hours
-- **WHEN** admin submits a new value for bookingCutoffHours (positive integer)
-- **THEN** system updates Organization.bookingCutoffHours and all subsequent booking validations use the new value
-
-#### Scenario: Invalid cutoff hours value
-- **WHEN** admin submits a non-positive value for bookingCutoffHours
-- **THEN** system returns 422 with validation error

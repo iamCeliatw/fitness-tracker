@@ -78,6 +78,7 @@ model Organization {
   slug               String   @unique
   plan               String   @default("FREE") // FREE | PRO | ENTERPRISE
   bookingCutoffHours Int      @default(2)
+  approvalTimeoutHours Int    @default(24)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -231,10 +232,10 @@ model FoodEntry {
 
 model AppointmentSlot {
   id        String   @id @default(cuid())
-  startTime DateTime
-  endTime   DateTime
+  startTime DateTime @db.Timestamptz(3)
+  endTime   DateTime @db.Timestamptz(3)
   status    String   @default("OPEN") // OPEN | BOOKED | CANCELLED
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
 
   coachId String
   coach   User         @relation("CoachSlots", fields: [coachId], references: [id])
@@ -245,11 +246,13 @@ model AppointmentSlot {
 }
 
 model Appointment {
-  id          String    @id @default(cuid())
-  status      String    @default("CONFIRMED") // CONFIRMED | CANCELLED
-  notes       String?
-  createdAt   DateTime  @default(now())
-  cancelledAt DateTime?
+  id             String    @id @default(cuid())
+  status         String    @default("CONFIRMED") // PENDING | CONFIRMED | REJECTED | EXPIRED | CANCELLED（DB default 保持 CONFIRMED，App 端一律明確指定）
+  notes          String?
+  expiresAt      DateTime? @db.Timestamptz(3) // PENDING 的過期死線，建立時凍結 = min(now+approvalTimeoutHours, startTime-bookingCutoffHours)
+  rejectedReason String?
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  cancelledAt    DateTime? @db.Timestamptz(3)
 
   slotId    String          @unique
   slot      AppointmentSlot @relation(fields: [slotId], references: [id])
