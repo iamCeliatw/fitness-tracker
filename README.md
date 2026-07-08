@@ -37,10 +37,12 @@
 
 **教練**
 - 學員總覽：本週訓練次數、飲食達標天數
-- 時段管理：開放可預約時段
+- 時段管理：固定一小時時段，可單次開放或每週重複批次建立（重疊自動跳過並回報）
+- 週行程導覽：前後翻週查看各週排課與預約狀態
 - 預約審核：核准/拒絕學員預約（含審核時限與過期機制）
 
-**管理員**
+**管理員 / 館主**
+- 健身房建立：註冊時建館成為 OWNER，8 碼邀請碼供成員加入（可重置）
 - 成員管理：角色調整（會員 ⇄ 教練）、教練-學員配對
 - 動作庫管理：內建動作 CRUD
 - 稽核記錄：資料異動追蹤（誰、何時、改了什麼）
@@ -54,7 +56,7 @@
 | Database | Supabase（PostgreSQL）+ Prisma 7 |
 | Auth | Supabase Auth（JWT session cookie） |
 | Forms | react-hook-form + zod |
-| Testing | Vitest + React Testing Library + Playwright（16 支 E2E spec） |
+| Testing | Vitest + React Testing Library + Playwright（17 支 E2E spec） |
 | Deploy | Vercel |
 
 ## 架構亮點
@@ -75,7 +77,7 @@
 /opsx:archive → 歸檔 change、同步 delta specs 到主 specs
 ```
 
-24 個功能 spec 全數留存於 [`openspec/specs/`](openspec/specs/)，每個功能的設計決策可追溯。
+26 個功能 spec 全數留存於 [`openspec/specs/`](openspec/specs/)，每個功能的設計決策可追溯。
 
 ## 本地開發
 
