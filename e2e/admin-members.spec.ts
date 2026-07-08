@@ -35,6 +35,20 @@ async function resetCoachPairings() {
   });
 }
 
+/** 將 test-admin 自己的 membership 還原為 MEMBER——升降測試中斷或並行手動測試的殘留都會毒害下次執行 */
+async function resetAdminMembershipRole() {
+  const adminId = await getUserId(process.env.TEST_ADMIN_EMAIL!);
+  if (!adminId) return;
+  await fetch(
+    `${SUPABASE_URL}/rest/v1/OrganizationMember?userId=eq.${adminId}`,
+    {
+      method: "PATCH",
+      headers: adminHeaders,
+      body: JSON.stringify({ role: "MEMBER" }),
+    }
+  );
+}
+
 async function loginAsAdmin(page: import("@playwright/test").Page) {
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
@@ -45,6 +59,10 @@ async function loginAsAdmin(page: import("@playwright/test").Page) {
 }
 
 test.describe("Admin member management", () => {
+  test.beforeAll(async () => {
+    await resetAdminMembershipRole();
+  });
+
   test("member list is visible with role badges", async ({ page }) => {
     await loginAsAdmin(page);
     await page.goto("/admin/members");
