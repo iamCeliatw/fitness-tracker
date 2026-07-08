@@ -43,15 +43,15 @@
 - `/admin` layout：全域 `ADMIN` **或** org `OWNER` 可進（否則 redirect `/dashboard`）
 - `/admin/settings`（頁 + API）：守 `requireOrgRole("OWNER")`，org 由 membership 的 `orgId` 決定——settings API 的無過濾 `.single()` 一併修掉
 - 其餘 `/admin` 頁（audit-logs、members、exercises）維持全域 `ADMIN`；sidebar 依身分只渲染有權限的項目
-- 全域 `ADMIN` 定位為平台 superadmin；為了 org context 與 E2E 相容，migration 將 bootstrap admin 的既有 membership 升為 `OWNER`（見 D5）
+- 全域 `ADMIN` 定位為平台 superadmin，**不再有 settings 存取權**（settings 是 org 資源）
 - 替代案（org 設定另開 `/dashboard/org` 頁）：多一頁 + 兩處設定入口，否決。
+- ~~migration 將 bootstrap admin membership 升 OWNER~~ 實作時發現與 admin-members E2E 衝突（該 spec 以 TEST_ADMIN 自己的 membership 做會員↔教練升降測試），改為：settings 的 OWNER 覆蓋由 E2E 走註冊流程新建的健身房 owner 提供（同時測到建館本身）；demo/production 管理帳號要管 org 設定時以手動 SQL 升級（migration 檔內附範本）。
 
 ### D5. Migration（手動 SQL，Supabase SQL Editor）
 1. `ALTER TABLE "Organization" ADD COLUMN "inviteCode" TEXT`
 2. 回填：`UPDATE ... SET "inviteCode" = upper(substr(md5(random()::text), 1, 8)) WHERE "inviteCode" IS NULL`
 3. `SET NOT NULL` + `ADD CONSTRAINT ... UNIQUE ("inviteCode")`
-4. 將 `BOOTSTRAP_ADMIN_EMAIL` 對應 user 的 OrganizationMember 升為 `OWNER`（讓 TEST_ADMIN 能過新守門，其餘 test accounts 不動）
-5. 冪等：每步用 `IF NOT EXISTS` / 條件式 UPDATE，可重跑
+4. 冪等：每步用 `IF NOT EXISTS` / 條件式 UPDATE，可重跑；**不動任何 membership**（原因見 D4）
 
 ## 互動視覺規格
 

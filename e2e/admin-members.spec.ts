@@ -147,48 +147,5 @@ test.describe("Admin member management", () => {
   });
 });
 
-test.describe("Registration onboarding", () => {
-  test("new signup automatically gets MEMBER membership", async ({ page }) => {
-    const email = `e2e-onboard-${Date.now()}@example.com`;
-
-    await page.goto("/register");
-    await page.waitForLoadState("networkidle");
-    await page.fill("#name", "E2E 註冊測試");
-    await page.fill("#email", email);
-    await page.fill("#password", "test123456");
-    await page.click('button[type="submit"]');
-    await page.waitForURL("**/login?registered=true");
-
-    // 驗證 membership 已自動建立
-    const users = await (
-      await fetch(
-        `${SUPABASE_URL}/rest/v1/User?email=eq.${encodeURIComponent(email)}&select=id`,
-        { headers: adminHeaders }
-      )
-    ).json();
-    expect(users).toHaveLength(1);
-
-    const memberships = await (
-      await fetch(
-        `${SUPABASE_URL}/rest/v1/OrganizationMember?userId=eq.${users[0].id}&select=role`,
-        { headers: adminHeaders }
-      )
-    ).json();
-    expect(memberships).toHaveLength(1);
-    expect(memberships[0].role).toBe("MEMBER");
-
-    // 清理：membership → User → auth user
-    await fetch(
-      `${SUPABASE_URL}/rest/v1/OrganizationMember?userId=eq.${users[0].id}`,
-      { method: "DELETE", headers: adminHeaders }
-    );
-    await fetch(`${SUPABASE_URL}/rest/v1/User?id=eq.${users[0].id}`, {
-      method: "DELETE",
-      headers: adminHeaders,
-    });
-    await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${users[0].id}`, {
-      method: "DELETE",
-      headers: adminHeaders,
-    });
-  });
-});
+// 「新註冊自動加入預設組織」需求已由 add-org-onboarding 移除，
+// 新註冊行為（建館成 OWNER / 邀請碼加入成 MEMBER）由 org-onboarding.spec.ts 覆蓋
