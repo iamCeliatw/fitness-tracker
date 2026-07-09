@@ -1,0 +1,25 @@
+// design-sync bundle entry — re-exports the shadcn/ui layer as the design system.
+export * from '../src/components/ui/alert-dialog';
+export * from '../src/components/ui/avatar';
+export * from '../src/components/ui/badge';
+export * from '../src/components/ui/button';
+export * from '../src/components/ui/calendar';
+export * from '../src/components/ui/card';
+export * from '../src/components/ui/chart';
+export * from '../src/components/ui/dialog';
+export * from '../src/components/ui/dropdown-menu';
+export * from '../src/components/ui/input';
+export * from '../src/components/ui/label';
+export * from '../src/components/ui/navigation-menu';
+export { default as PageLoading } from '../src/components/ui/page-loading';
+export * from '../src/components/ui/progress';
+export * from '../src/components/ui/select';
+export * from '../src/components/ui/separator';
+export * from '../src/components/ui/sheet';
+export * from '../src/components/ui/sidebar';
+export * from '../src/components/ui/skeleton';
+export * from '../src/components/ui/sonner';
+export * from '../src/components/ui/table';
+export * from '../src/components/ui/tabs';
+export * from '../src/components/ui/textarea';
+export * from '../src/components/ui/tooltip';
