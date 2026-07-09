@@ -87,6 +87,7 @@ model Organization {
   coachStudents     CoachStudent[]
   appointmentSlots  AppointmentSlot[]
   appointments      Appointment[]
+  exercises         Exercise[]
 }
 
 model OrganizationMember {
@@ -127,11 +128,15 @@ model Exercise {
   category    ExerciseCategory
   isCustom    Boolean          @default(false)
   createdById String?
+  orgId       String? // null = 平台全域（內建或個人自訂）；有值 = 館自訂
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
+  org           Organization?         @relation(fields: [orgId], references: [id], onDelete: Cascade)
   planExercises WorkoutPlanExercise[]
   logExercises  WorkoutLogExercise[]
+
+  @@index([orgId])
 }
 
 // ─── Workout Plan ─────────────────────────────────────────────────────────────

@@ -29,14 +29,17 @@ export type ExerciseRow = {
   category: string;
   isCustom: boolean;
   createdById: string | null;
+  orgId: string | null;
 };
 
 const FILTER_TABS = ["ALL", ...MUSCLE_GROUPS] as const;
 
 export default function ExercisesManager({
   initialExercises,
+  viewerOrgId,
 }: {
   initialExercises: ExerciseRow[];
+  viewerOrgId: string | null;
 }) {
   const [exercises, setExercises] = useState<ExerciseRow[]>(initialExercises);
   const [muscleFilter, setMuscleFilter] = useState<string>("ALL");
@@ -118,52 +121,63 @@ export default function ExercisesManager({
         <p className="text-gray-500 text-center py-8">沒有符合條件的動作</p>
       ) : (
         <ul className="space-y-2">
-          {filtered.map((ex) => (
-            <li
-              key={ex.id}
-              className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-900 px-4 py-3 transition-colors duration-150 hover:border-gray-700"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="font-medium truncate">{ex.name}</span>
-                <span className="text-xs px-2 py-0.5 rounded-full border border-gray-700 text-gray-400 shrink-0">
-                  {MUSCLE_LABELS[ex.muscleGroup] ?? ex.muscleGroup}
-                </span>
-                <span className="text-xs px-2 py-0.5 rounded-full border border-gray-700 text-gray-400 shrink-0">
-                  {CATEGORY_LABELS[ex.category] ?? ex.category}
-                </span>
-                {ex.isCustom && (
-                  <span className="text-xs px-2 py-0.5 rounded-full border border-orange-500/40 text-orange-400 shrink-0">
-                    自訂
+          {filtered.map((ex) => {
+            // org 管理者視角：全域動作唯讀（只有本館動作可編輯/刪除）
+            const readonly = viewerOrgId !== null && ex.orgId === null;
+            return (
+              <li
+                key={ex.id}
+                className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-900 px-4 py-3 transition-colors duration-150 hover:border-gray-700"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-medium truncate">{ex.name}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full border border-gray-700 text-gray-400 shrink-0">
+                    {MUSCLE_LABELS[ex.muscleGroup] ?? ex.muscleGroup}
                   </span>
+                  <span className="text-xs px-2 py-0.5 rounded-full border border-gray-700 text-gray-400 shrink-0">
+                    {CATEGORY_LABELS[ex.category] ?? ex.category}
+                  </span>
+                  {readonly && (
+                    <span className="text-xs px-2 py-0.5 rounded-full border border-gray-700 text-gray-500 shrink-0">
+                      內建
+                    </span>
+                  )}
+                  {ex.isCustom && (
+                    <span className="text-xs px-2 py-0.5 rounded-full border border-orange-500/40 text-orange-400 shrink-0">
+                      自訂
+                    </span>
+                  )}
+                </div>
+                {!readonly && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    {!ex.isCustom && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`編輯 ${ex.name}`}
+                        onClick={() => {
+                          setEditing(ex);
+                          setFormOpen(true);
+                        }}
+                        className="text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`刪除 ${ex.name}`}
+                      onClick={() => setDeleting(ex)}
+                      className="text-gray-400 hover:text-red-400 hover:bg-gray-800 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 )}
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                {!ex.isCustom && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={`編輯 ${ex.name}`}
-                    onClick={() => {
-                      setEditing(ex);
-                      setFormOpen(true);
-                    }}
-                    className="text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label={`刪除 ${ex.name}`}
-                  onClick={() => setDeleting(ex)}
-                  className="text-gray-400 hover:text-red-400 hover:bg-gray-800 transition-colors"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
 

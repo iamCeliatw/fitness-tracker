@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { getAdminContext } from "@/lib/admin-api";
+import { getOrgContext } from "@/lib/auth-helpers";
 
 export async function GET() {
-  const ctx = await getAdminContext();
+  const ctx = await getOrgContext("ADMIN");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { data: members, error } = await ctx.admin
     .from("OrganizationMember")
     .select("id, role, joinedAt, userId, user:User(id, name, email)")
+    .eq("orgId", ctx.orgId)
     .order("joinedAt", { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -18,6 +19,7 @@ export async function GET() {
     .select(
       "id, status, coachId, studentId, student:User!CoachStudent_studentId_fkey(id, name, email)"
     )
+    .eq("orgId", ctx.orgId)
     .eq("status", "ACTIVE");
 
   return NextResponse.json({ members: members ?? [], pairings: pairings ?? [] });

@@ -5,25 +5,29 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, Dumbbell, Users, Settings } from "lucide-react";
 import LogoutButton from "@/components/auth/logout-button";
 
+// audience：both = 平台 ADMIN 與 org 管理者、org = org 管理者、owner = org OWNER
 const navItems = [
-  { label: "儀表板", href: "/admin", icon: LayoutDashboard, ownerOnly: false },
-  { label: "成員", href: "/admin/members", icon: Users, ownerOnly: false },
-  { label: "動作庫", href: "/admin/exercises", icon: Dumbbell, ownerOnly: false },
-  { label: "設定", href: "/admin/settings", icon: Settings, ownerOnly: true },
-];
+  { label: "儀表板", href: "/admin", icon: LayoutDashboard, audience: "both" },
+  { label: "成員", href: "/admin/members", icon: Users, audience: "org" },
+  { label: "動作庫", href: "/admin/exercises", icon: Dumbbell, audience: "both" },
+  { label: "設定", href: "/admin/settings", icon: Settings, audience: "owner" },
+] as const;
 
 export default function AdminSidebar({
   isAdmin,
   isOwner,
+  isOrgManager,
 }: {
   isAdmin: boolean;
   isOwner: boolean;
+  isOrgManager: boolean;
 }) {
   const pathname = usePathname();
-  // ADMIN 限定項 vs OWNER 限定項（設定歸 org OWNER 管）
-  const visibleItems = navItems.filter((item) =>
-    item.ownerOnly ? isOwner : isAdmin
-  );
+  const visibleItems = navItems.filter((item) => {
+    if (item.audience === "owner") return isOwner;
+    if (item.audience === "org") return isOrgManager;
+    return isAdmin || isOrgManager;
+  });
 
   return (
     <aside className="hidden md:flex flex-col w-60 shrink-0 bg-gray-900 border-r border-gray-800 h-screen sticky top-0">

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getOwnerContext } from "@/lib/auth-helpers";
+import { getOrgContext } from "@/lib/auth-helpers";
 
 const settingsSchema = z.object({
   bookingCutoffHours: z.number().int().positive("必須為正整數"),
@@ -8,7 +8,7 @@ const settingsSchema = z.object({
 });
 
 export async function GET() {
-  const ctx = await getOwnerContext();
+  const ctx = await getOrgContext("OWNER");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { data: org } = await ctx.admin
@@ -23,7 +23,7 @@ export async function GET() {
 }
 
 export async function PATCH(req: NextRequest) {
-  const ctx = await getOwnerContext();
+  const ctx = await getOrgContext("OWNER");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => null);

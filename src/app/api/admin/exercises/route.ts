@@ -1,17 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getAdminContext } from "@/lib/admin-api";
+import { getExerciseAdminContext } from "@/lib/admin-api";
 import { MUSCLE_GROUPS, EXERCISE_CATEGORIES } from "@/lib/exercise-labels";
 
 export async function GET() {
-  const ctx = await getAdminContext();
+  const ctx = await getExerciseAdminContext();
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { data: exercises, error } = await ctx.admin
+  let query = ctx.admin
     .from("Exercise")
-    .select("id, name, description, muscleGroup, category, isCustom, createdById")
+    .select("id, name, description, muscleGroup, category, isCustom, createdById, orgId")
     .order("muscleGroup", { ascending: true })
     .order("name", { ascending: true });
+
+  // org 管理者：全域內建 + 本館自訂；平台 ADMIN：全域（含會員個人自訂）
+  if (ctx.orgId) {
+    query = query.or(`and(orgId.is.null,isCustom.eq.false),orgId.eq.${ctx.orgId}`);
+  } else {
+    query = query.is("orgId", null);
+  }
+
+  const { data: exercises, error } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -26,7 +35,7 @@ const createSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const ctx = await getAdminContext();
+  const ctx = await getExerciseAdminContext();
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => null);
@@ -48,10 +57,11 @@ export async function POST(req: NextRequest) {
       category: parsed.data.category,
       isCustom: false,
       createdById: null,
+      orgId: ctx.orgId, // org 管理者掛本館；平台 ADMIN 為 null（全域）
       createdAt: now,
       updatedAt: now,
     })
-    .select("id, name, description, muscleGroup, category, isCustom, createdById")
+    .select("id, name, description, muscleGroup, category, isCustom, createdById, orgId")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
