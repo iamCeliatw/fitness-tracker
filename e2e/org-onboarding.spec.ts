@@ -94,9 +94,10 @@ test.describe("Org onboarding", () => {
     ).toBeVisible();
     await expect(page.getByText(GYM_NAME)).toBeVisible();
 
-    // sidebar 只渲染 OWNER 有權限的「設定」項
+    // sidebar 渲染 OWNER 的 org 管理項（add-org-data-scoping：成員/動作庫歸 org 管理者）
     await expect(page.getByRole("link", { name: "設定" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "成員" })).not.toBeVisible();
+    await expect(page.getByRole("link", { name: "成員" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "動作庫" })).toBeVisible();
 
     // 讀取邀請碼（等寬顯示的 8 碼）
     const codeLocator = page.locator("span.font-mono");

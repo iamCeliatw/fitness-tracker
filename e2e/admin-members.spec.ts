@@ -1,7 +1,9 @@
 /**
  * Admin 成員管理 E2E
- * - 使用 test-admin 自己的 membership 做升降測試（不動 TEST_USER / TEST_COACH 的角色，
- *   避免影響其他 spec）
+ * - add-org-data-scoping 後成員管理歸 org 管理者（org-ADMIN 以上）：
+ *   以 TEST_OWNER（e2e-test-org 的 OWNER，global-setup 確保存在）登入操作
+ * - 使用 test-admin 的 membership（org 內是 MEMBER）做升降測試
+ *   （不動 TEST_USER / TEST_COACH 的角色，避免影響其他 spec）
  * - 配對測試結束後將狀態還原（結束配對 + 直接刪除 ENDED 列，保持 DB 乾淨）
  */
 import { test, expect } from "@playwright/test";
@@ -49,13 +51,14 @@ async function resetAdminMembershipRole() {
   );
 }
 
-async function loginAsAdmin(page: import("@playwright/test").Page) {
+async function loginAsOwner(page: import("@playwright/test").Page) {
   await page.goto("/login");
   await page.waitForLoadState("networkidle");
-  await page.fill("#email", process.env.TEST_ADMIN_EMAIL!);
-  await page.fill("#password", process.env.TEST_ADMIN_PASSWORD!);
+  await page.fill("#email", process.env.TEST_OWNER_EMAIL!);
+  await page.fill("#password", process.env.TEST_OWNER_PASSWORD!);
   await page.click('button[type="submit"]');
-  await page.waitForURL("/admin");
+  // OWNER 的全域 role 是 USER，登入後落在 /dashboard
+  await page.waitForURL("/dashboard");
 }
 
 test.describe("Admin member management", () => {
@@ -64,7 +67,7 @@ test.describe("Admin member management", () => {
   });
 
   test("member list is visible with role badges", async ({ page }) => {
-    await loginAsAdmin(page);
+    await loginAsOwner(page);
     await page.goto("/admin/members");
     await page.waitForLoadState("networkidle");
 
@@ -77,7 +80,7 @@ test.describe("Admin member management", () => {
   });
 
   test("promote member to coach and demote back", async ({ page }) => {
-    await loginAsAdmin(page);
+    await loginAsOwner(page);
     await page.goto("/admin/members");
     await page.waitForLoadState("networkidle");
 
@@ -101,7 +104,7 @@ test.describe("Admin member management", () => {
     page,
   }) => {
     await resetCoachPairings();
-    await loginAsAdmin(page);
+    await loginAsOwner(page);
     await page.goto("/admin/members");
     await page.waitForLoadState("networkidle");
 

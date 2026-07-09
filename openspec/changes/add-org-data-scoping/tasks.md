@@ -3,7 +3,7 @@
 ## 1. Schema 與 migration
 
 - [x] 1.1 `prisma/schema.prisma`：Exercise 加 `orgId String?` + `org Organization?` relation（`onDelete: Cascade`）+ `@@index([orgId])`；Organization 加 `exercises Exercise[]`
-- [ ] 1.2 手動撰寫 migration SQL（ADD COLUMN + FK + index），在 Supabase SQL Editor 執行，`npx prisma generate` 確認型別
+- [x] 1.2 手動撰寫 migration SQL（ADD COLUMN + FK + index），在 Supabase SQL Editor 執行，`npx prisma generate` 確認型別
 
 ## 2. 角色階層 helper
 
@@ -25,7 +25,7 @@
 
 ## 5. E2E 測試
 
-- [ ] 5.1 跑 E2E 前置：`grep e2e/` 確認測試帳號角色不與本 change 衝突；查 port 殘留
-- [ ] 5.2 org-exercise-isolation.spec：OWNER 建館動作 → 本館 MEMBER 選擇器可見（happy path）；第二個 org 的成員不可見（隔離，測試內自建自清）；OWNER PATCH 全域動作回 403（edge）
-- [ ] 5.3 org-role-hierarchy.spec：OWNER 進 /dashboard/coach 不被導走（happy path）；MEMBER 打 `/api/admin/members` 回 403（edge）
-- [ ] 5.4 `npm run test:e2e` 全綠後才勾 5.2/5.3
+- [x] 5.1 跑 E2E 前置：`grep e2e/` 確認測試帳號角色不與本 change 衝突；查 port 殘留
+- [x] 5.2 org-exercise-isolation.spec：OWNER 建館動作 → 本館 MEMBER 選擇器可見（happy path）；第二個 org 的成員不可見（隔離，測試內自建自清）；OWNER PATCH 全域動作回 403（edge）
+- [x] 5.3 org-role-hierarchy.spec：OWNER 進 /dashboard/coach 不被導走（happy path）；MEMBER 打 `/api/admin/members` 回 403（edge）
+- [x] 5.4 `npm run test:e2e` 全綠後才勾 5.2/5.3
