@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getAdminContext } from "@/lib/admin-api";
-import { setAuditActor } from "@/lib/auth-helpers";
+import { getOrgContext, setAuditActor } from "@/lib/auth-helpers";
 
 const createSchema = z.object({
   coachId: z.string().min(1),
@@ -9,7 +8,7 @@ const createSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
-  const ctx = await getAdminContext();
+  const ctx = await getOrgContext("ADMIN");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json().catch(() => null);
@@ -29,17 +28,32 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 配對隸屬教練 membership 的組織
+  // 教練與學員都必須是本館成員；教練需 COACH 以上（含 ADMIN/OWNER）
   const { data: coachMembership } = await ctx.admin
     .from("OrganizationMember")
     .select("orgId")
     .eq("userId", coachId)
-    .eq("role", "COACH")
-    .single();
+    .eq("orgId", ctx.orgId)
+    .in("role", ["COACH", "ADMIN", "OWNER"])
+    .maybeSingle();
 
   if (!coachMembership) {
     return NextResponse.json(
-      { error: "該用戶不是任何組織的教練" },
+      { error: "該用戶不是本組織的教練" },
+      { status: 422 }
+    );
+  }
+
+  const { data: studentMembership } = await ctx.admin
+    .from("OrganizationMember")
+    .select("id")
+    .eq("userId", studentId)
+    .eq("orgId", ctx.orgId)
+    .maybeSingle();
+
+  if (!studentMembership) {
+    return NextResponse.json(
+      { error: "該學員不是本組織的成員" },
       { status: 422 }
     );
   }
@@ -51,7 +65,7 @@ export async function POST(req: NextRequest) {
     .select("id, status")
     .eq("coachId", coachId)
     .eq("studentId", studentId)
-    .eq("orgId", coachMembership.orgId)
+    .eq("orgId", ctx.orgId)
     .maybeSingle();
 
   if (existing?.status === "ACTIVE") {
@@ -82,7 +96,7 @@ export async function POST(req: NextRequest) {
       id: crypto.randomUUID(),
       coachId,
       studentId,
-      orgId: coachMembership.orgId,
+      orgId: ctx.orgId,
       status: "ACTIVE",
       assignedAt: new Date().toISOString(),
     })

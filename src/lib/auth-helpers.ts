@@ -39,7 +39,15 @@ export async function requireRole(role: "USER" | "ADMIN") {
   return { dbUser };
 }
 
-export async function requireOrgRole(...roles: OrgRole[]) {
+// OrgRole 階層：高位角色自動通過低位檢查（OWNER 兼教練等）
+const ORG_ROLE_RANK: Record<OrgRole, number> = {
+  OWNER: 4,
+  ADMIN: 3,
+  COACH: 2,
+  MEMBER: 1,
+};
+
+export async function requireOrgRole(minRole: OrgRole) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -56,7 +64,7 @@ export async function requireOrgRole(...roles: OrgRole[]) {
     .eq("userId", user.id)
     .single();
 
-  if (!membership || !roles.includes(membership.role as OrgRole)) {
+  if (!membership || ORG_ROLE_RANK[membership.role as OrgRole] < ORG_ROLE_RANK[minRole]) {
     redirect("/dashboard");
   }
 
@@ -68,8 +76,8 @@ export async function requireOrgRole(...roles: OrgRole[]) {
   };
 }
 
-// API route 版 OWNER 守門（回 null 而非 redirect）；org 由呼叫者 membership 決定
-export async function getOwnerContext() {
+// API route 版 org 守門（回 null 而非 redirect）；org 由呼叫者 membership 決定
+export async function getOrgContext(minRole: OrgRole) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -83,8 +91,15 @@ export async function getOwnerContext() {
     .eq("userId", user.id)
     .single();
 
-  if (!membership || membership.role !== "OWNER") return null;
-  return { userId: user.id, orgId: membership.orgId, admin };
+  if (!membership || ORG_ROLE_RANK[membership.role as OrgRole] < ORG_ROLE_RANK[minRole]) {
+    return null;
+  }
+  return {
+    userId: user.id,
+    orgId: membership.orgId,
+    role: membership.role as OrgRole,
+    admin,
+  };
 }
 
 export async function setAuditActor(userId: string) {

@@ -10,10 +10,21 @@ export async function GET(req: NextRequest) {
   const muscleGroup = req.nextUrl.searchParams.get("muscleGroup");
   const admin = await createAdminClient();
 
+  const { data: membership } = await admin
+    .from("OrganizationMember")
+    .select("orgId")
+    .eq("userId", user.id)
+    .maybeSingle();
+
+  // 可見範圍：全域內建 + 本館自訂 + 自己的個人自訂；無 membership 退回「內建 + 自己的」
+  const visibility = membership
+    ? `and(orgId.is.null,isCustom.eq.false),orgId.eq.${membership.orgId},createdById.eq.${user.id}`
+    : `and(orgId.is.null,isCustom.eq.false),createdById.eq.${user.id}`;
+
   let query = admin
     .from("Exercise")
     .select("id, name, muscleGroup, category")
-    .or(`isCustom.eq.false,createdById.eq.${user.id}`)
+    .or(visibility)
     .order("muscleGroup", { ascending: true })
     .order("name", { ascending: true });
 

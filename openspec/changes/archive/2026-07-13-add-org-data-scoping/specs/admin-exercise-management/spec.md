@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: 動作庫管理頁
 系統 SHALL 提供 `/admin/exercises` 頁面（org-ADMIN 以上，或全域 ADMIN 可存取），每列顯示名稱、肌群、類別。org 管理者看到全域內建動作（標示灰色「內建」badge，唯讀）與本館自訂動作（可操作）；全域 ADMIN 看到全域動作與會員自訂動作（自訂動作標示「自訂」badge）。頁面 SHALL 提供肌群 Tab 篩選與名稱搜尋。

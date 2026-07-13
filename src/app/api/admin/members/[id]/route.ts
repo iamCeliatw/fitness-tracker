@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getAdminContext } from "@/lib/admin-api";
-import { setAuditActor } from "@/lib/auth-helpers";
+import { getOrgContext, setAuditActor } from "@/lib/auth-helpers";
 
 const patchSchema = z.object({
   role: z.enum(["COACH", "MEMBER"]),
@@ -11,7 +10,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const ctx = await getAdminContext();
+  const ctx = await getOrgContext("ADMIN");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await params;
@@ -26,12 +25,15 @@ export async function PATCH(
 
   const { data: membership } = await ctx.admin
     .from("OrganizationMember")
-    .select("id, role, userId")
+    .select("id, role, userId, orgId")
     .eq("id", id)
     .single();
 
   if (!membership) {
     return NextResponse.json({ error: "找不到該成員" }, { status: 404 });
+  }
+  if (membership.orgId !== ctx.orgId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // 降級防呆：教練仍有 ACTIVE 配對或未來 OPEN/BOOKED 時段 → 409

@@ -70,6 +70,42 @@ async function getUserIdByEmail(email: string): Promise<string | null> {
   return users?.[0]?.id ?? null;
 }
 
+/** 確保 auth 帳號存在（email 已確認）；已存在則直接回傳既有 User id */
+async function ensureAuthUser(
+  authEmail: string,
+  password: string,
+  name: string,
+): Promise<string | null> {
+  const existing = await getUserIdByEmail(authEmail);
+  if (existing) return existing;
+
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+    method: "POST",
+    headers: adminHeaders,
+    body: JSON.stringify({
+      email: authEmail,
+      password,
+      email_confirm: true,
+      user_metadata: { name },
+    }),
+  });
+  if (!res.ok) {
+    console.warn(
+      `[E2E Setup] create auth user ${authEmail} failed: ${await res.text()}`,
+    );
+    return null;
+  }
+  const created = (await res.json()) as { id?: string };
+  console.log(`[E2E Setup] Created auth user ${authEmail}`);
+  // public.User 由 DB trigger 建立，稍等一拍再讀
+  for (let i = 0; i < 5; i++) {
+    const id = await getUserIdByEmail(authEmail);
+    if (id) return id;
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  return created.id ?? null;
+}
+
 async function ensureOrgMember(
   orgId: string,
   userId: string,
@@ -116,6 +152,8 @@ export default async function globalSetup() {
 
   const coachEmail = process.env.TEST_COACH_EMAIL;
   const memberEmail = process.env.TEST_USER_EMAIL;
+  const ownerEmail = process.env.TEST_OWNER_EMAIL;
+  const ownerPassword = process.env.TEST_OWNER_PASSWORD;
 
   if (!coachEmail || !memberEmail) {
     console.warn(
@@ -126,9 +164,12 @@ export default async function globalSetup() {
 
   const orgId = await getOrCreateTestOrg();
 
-  const [coachId, memberId] = await Promise.all([
+  const [coachId, memberId, ownerId] = await Promise.all([
     getUserIdByEmail(coachEmail),
     getUserIdByEmail(memberEmail),
+    ownerEmail && ownerPassword
+      ? ensureAuthUser(ownerEmail, ownerPassword, "test owner")
+      : Promise.resolve(null),
   ]);
 
   if (!coachId) {
@@ -137,10 +178,14 @@ export default async function globalSetup() {
   if (!memberId) {
     console.warn(`[E2E Setup] Member user not found: ${memberEmail}`);
   }
+  if (ownerEmail && !ownerId) {
+    console.warn(`[E2E Setup] Owner user not available: ${ownerEmail}`);
+  }
 
   await Promise.all([
     coachId ? ensureOrgMember(orgId, coachId, "COACH") : Promise.resolve(),
     memberId ? ensureOrgMember(orgId, memberId, "MEMBER") : Promise.resolve(),
+    ownerId ? ensureOrgMember(orgId, ownerId, "OWNER") : Promise.resolve(),
   ]);
 
   console.log(`[E2E Setup] Done. org=${orgId}`);

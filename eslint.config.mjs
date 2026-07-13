@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // design-sync 產物與預覽（gitignored 機器產出，非 app 原始碼）
+    "ds-bundle/**",
+    ".design-sync/**",
+    "src/generated/**",
   ]),
 ]);
 

@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: 成員列表
 系統 SHALL 提供 `/admin/members` 頁面（org-ADMIN 以上可存取），列出 **caller 所屬組織**所有成員的名字、email、org 角色 badge 與加入時間。`GET /api/admin/members` SHALL 以 `getOrgContext("ADMIN")` 守門並限定查詢 caller 的 orgId。
@@ -56,10 +56,3 @@ org 管理者（org-ADMIN 以上）SHALL 能建立與結束**本館**的 CoachSt
 #### Scenario: 無配對空狀態
 - **WHEN** 某教練沒有任何 ACTIVE 配對
 - **THEN** 該教練卡片顯示「尚無配對學員」空狀態
-
-### Requirement: 稽核紀錄
-成員角色變更與配對操作 SHALL 透過 `setAuditActor` 讓既有 audit trigger 記錄操作者。
-
-#### Scenario: 角色變更留痕
-- **WHEN** ADMIN 完成一次角色升降
-- **THEN** AuditLog 出現對應記錄且 actorId 為該 ADMIN

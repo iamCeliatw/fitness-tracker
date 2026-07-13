@@ -44,8 +44,9 @@ export default function CoachPairingPanel({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // 教練候選 = COACH 以上（OWNER/ADMIN 可兼教練）
   const coaches = useMemo(
-    () => members.filter((m) => m.role === "COACH"),
+    () => members.filter((m) => ["COACH", "ADMIN", "OWNER"].includes(m.role)),
     [members]
   );
 

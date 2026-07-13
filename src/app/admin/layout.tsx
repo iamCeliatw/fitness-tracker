@@ -16,14 +16,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     admin.from("OrganizationMember").select("role").eq("userId", user.id).single(),
   ]);
 
-  // 全域 ADMIN（平台 superadmin）或 org OWNER 可進；各 page 另有自己的守門
+  // 全域 ADMIN（平台 superadmin）或 org 管理者（org-ADMIN 以上）可進；各 page 另有自己的守門
   const isAdmin = dbUser?.role === "ADMIN";
   const isOwner = membership?.role === "OWNER";
-  if (!isAdmin && !isOwner) redirect("/dashboard");
+  const isOrgManager = membership?.role === "OWNER" || membership?.role === "ADMIN";
+  if (!isAdmin && !isOrgManager) redirect("/dashboard");
 
   return (
     <div className="flex h-screen bg-gray-950 text-white">
-      <AdminSidebar isAdmin={isAdmin} isOwner={isOwner} />
+      <AdminSidebar isAdmin={isAdmin} isOwner={isOwner} isOrgManager={isOrgManager} />
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>

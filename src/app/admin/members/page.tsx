@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/auth-helpers";
+import { requireOrgRole } from "@/lib/auth-helpers";
 import { createAdminClient } from "@/lib/supabase/server";
 import MembersManager, {
   type MemberRow,
@@ -6,19 +6,21 @@ import MembersManager, {
 } from "@/components/admin/members-manager";
 
 export default async function AdminMembersPage() {
-  await requireRole("ADMIN");
+  const { orgId } = await requireOrgRole("ADMIN");
   const admin = await createAdminClient();
 
   const [{ data: members }, { data: pairings }] = await Promise.all([
     admin
       .from("OrganizationMember")
       .select("id, role, joinedAt, userId, user:User(id, name, email)")
+      .eq("orgId", orgId)
       .order("joinedAt", { ascending: true }),
     admin
       .from("CoachStudent")
       .select(
         "id, status, coachId, studentId, student:User!CoachStudent_studentId_fkey(id, name, email)"
       )
+      .eq("orgId", orgId)
       .eq("status", "ACTIVE"),
   ]);
 

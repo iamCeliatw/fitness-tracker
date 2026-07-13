@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { getOwnerContext } from "@/lib/auth-helpers";
+import { getOrgContext } from "@/lib/auth-helpers";
 import { generateInviteCode } from "@/lib/invite-code";
 
 // 重置邀請碼：舊碼立即失效
 export async function POST() {
-  const ctx = await getOwnerContext();
+  const ctx = await getOrgContext("OWNER");
   if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   for (let attempt = 0; attempt < 2; attempt++) {
