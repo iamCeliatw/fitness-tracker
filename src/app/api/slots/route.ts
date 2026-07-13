@@ -8,7 +8,7 @@ const slotSchema = z.object({
   startTime: z.string().datetime("無效的時間格式"),
 });
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
