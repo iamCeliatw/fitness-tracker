@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -25,7 +26,24 @@ const coachItem = { label: "教練", href: "/dashboard/coach", icon: Users };
 type DashboardNavProps = {
   name: string;
   orgRole: string | null;
+  avatarUrl?: string | null;
 };
+
+// Google 頭像；載入失敗即整顆隱藏，fallback 回純文字呈現
+function Avatar({ url, name }: { url: string; name: string }) {
+  const [broken, setBroken] = useState(false);
+  if (broken) return null;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- 外部 Google 頭像，不進 next/image remotePatterns
+    <img
+      src={url}
+      alt={name}
+      referrerPolicy="no-referrer"
+      className="h-7 w-7 rounded-full shrink-0"
+      onError={() => setBroken(true)}
+    />
+  );
+}
 
 function RoleBadge({ isCoach }: { isCoach: boolean }) {
   return (
@@ -49,7 +67,7 @@ function Brand({ className }: { className?: string }) {
   );
 }
 
-export default function DashboardNav({ name, orgRole }: DashboardNavProps) {
+export default function DashboardNav({ name, orgRole, avatarUrl }: DashboardNavProps) {
   const pathname = usePathname();
   const isCoach = orgRole === "COACH";
 
@@ -88,6 +106,7 @@ export default function DashboardNav({ name, orgRole }: DashboardNavProps) {
         </div>
         <div className="px-3 py-4 border-t border-gray-800">
           <div className="flex items-center gap-2 px-3 pb-2">
+            {avatarUrl && <Avatar url={avatarUrl} name={name} />}
             <span className="text-sm font-medium text-white truncate">{name}</span>
             <RoleBadge isCoach={isCoach} />
           </div>

@@ -35,6 +35,7 @@ export async function proxy(request: NextRequest) {
     path === "/" ||
     path.startsWith("/login") ||
     path.startsWith("/register") ||
+    path.startsWith("/auth/callback") || // OAuth 回跳時尚無 session
     path.startsWith("/api/") ||
     path.startsWith("/_next") ||
     path.startsWith("/favicon");

@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import Link from "next/link";
 
-import GoogleLoginButton from "@/components/auth/google-login-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,17 +14,13 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 
-const registerSchema = z
+const onboardingSchema = z
   .object({
     mode: z.enum(["create", "join"]),
-    name: z.string().min(1, "姓名為必填"),
-    email: z.string().email("請輸入有效的 Email"),
-    password: z.string().min(6, "密碼至少 6 個字元"),
     orgName: z.string().optional(),
     inviteCode: z.string().optional(),
   })
@@ -47,12 +41,12 @@ const registerSchema = z
     }
   });
 
-type RegisterFormValues = z.infer<typeof registerSchema>;
+type OnboardingFormValues = z.infer<typeof onboardingSchema>;
 
 const inputClass =
   "bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-orange-500";
 
-export default function RegisterForm() {
+export default function OnboardingForm() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -62,16 +56,16 @@ export default function RegisterForm() {
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<OnboardingFormValues>({
+    resolver: zodResolver(onboardingSchema),
     defaultValues: { mode: "create" },
   });
   const mode = watch("mode");
 
-  async function onSubmit(values: RegisterFormValues) {
+  async function onSubmit(values: OnboardingFormValues) {
     setServerError(null);
 
-    const res = await fetch("/api/auth/register", {
+    const res = await fetch("/api/onboarding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
@@ -79,75 +73,29 @@ export default function RegisterForm() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => null);
-      setServerError(data?.error ?? "註冊失敗，請稍後再試");
+      setServerError(data?.error ?? "送出失敗，請稍後再試");
       return;
     }
 
-    router.push("/login?registered=true");
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (
     <Card className="bg-gray-900/80 border-gray-800 text-white backdrop-blur">
       <CardHeader>
-        <CardTitle className="text-xl text-white">建立帳號</CardTitle>
+        <CardTitle className="text-xl text-white">最後一步</CardTitle>
         <CardDescription className="text-gray-400">
-          開始追蹤你的訓練旅程
+          建立你的健身房，或用邀請碼加入
         </CardDescription>
       </CardHeader>
 
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-gray-300">
-              姓名
-            </Label>
-            <Input
-              id="name"
-              placeholder="你的名字"
-              className={inputClass}
-              {...register("name")}
-            />
-            {errors.name && (
-              <p className="text-xs text-red-400">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-gray-300">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              className={inputClass}
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-xs text-red-400">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-gray-300">
-              密碼
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="至少 6 個字元"
-              className={inputClass}
-              {...register("password")}
-            />
-            {errors.password && (
-              <p className="text-xs text-red-400">{errors.password.message}</p>
-            )}
-          </div>
-
           <Tabs
             value={mode}
             onValueChange={(v) =>
-              setValue("mode", v as RegisterFormValues["mode"])
+              setValue("mode", v as OnboardingFormValues["mode"])
             }
           >
             <TabsList className="w-full bg-gray-800">
@@ -212,24 +160,10 @@ export default function RegisterForm() {
             disabled={isSubmitting}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold mt-2 transition-colors"
           >
-            {isSubmitting ? "建立中..." : "建立帳號"}
+            {isSubmitting ? "送出中..." : "完成"}
           </Button>
         </form>
-
-        <GoogleLoginButton label="使用 Google 註冊" />
       </CardContent>
-
-      <CardFooter className="justify-center">
-        <p className="text-sm text-gray-400">
-          已有帳號？{" "}
-          <Link
-            href="/login"
-            className="text-orange-400 hover:text-orange-300 font-medium transition-colors"
-          >
-            前往登入
-          </Link>
-        </p>
-      </CardFooter>
     </Card>
   );
 }

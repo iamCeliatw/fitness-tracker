@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/server";
-import { generateInviteCode } from "@/lib/invite-code";
+import { createOrgWithOwner, findOrgByInviteCode, joinOrgAsMember } from "@/lib/org";
 
 const baseFields = {
   name: z.string().min(1, "姓名為必填"),
@@ -43,16 +43,10 @@ export async function POST(req: NextRequest) {
   // join 模式：signUp 前先驗邀請碼——無效碼不得產生孤兒 auth 帳號
   let joinOrgId: string | null = null;
   if (parsed.data.mode === "join") {
-    const code = parsed.data.inviteCode.trim().toUpperCase();
-    const { data: org } = await admin
-      .from("Organization")
-      .select("id")
-      .eq("inviteCode", code)
-      .single();
-    if (!org) {
+    joinOrgId = await findOrgByInviteCode(admin, parsed.data.inviteCode);
+    if (!joinOrgId) {
       return NextResponse.json({ error: "邀請碼無效" }, { status: 422 });
     }
-    joinOrgId = org.id;
   }
 
   // 無 cookie 的 anon client：註冊不建立本次請求的 session
@@ -83,15 +77,9 @@ export async function POST(req: NextRequest) {
 
   // 建立 org / membership：失敗不擋註冊（帳號可用，membership 屬可修復狀態）
   if (parsed.data.mode === "join") {
-    const { error: memberError } = await admin.from("OrganizationMember").insert({
-      id: crypto.randomUUID(),
-      role: "MEMBER",
-      orgId: joinOrgId!,
-      userId,
-      joinedAt: new Date().toISOString(),
-    });
+    const memberError = await joinOrgAsMember(admin, joinOrgId!, userId);
     if (memberError) {
-      console.error("[register] membership insert failed:", memberError.message);
+      console.error("[register] membership insert failed:", memberError);
     }
   } else {
     await createOrgWithOwner(admin, parsed.data.orgName, userId);
@@ -110,44 +98,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ ok: true }, { status: 201 });
-}
-
-async function createOrgWithOwner(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  orgName: string,
-  userId: string
-) {
-  // Supabase 無交易：序列 insert + 失敗補償刪除
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const orgId = crypto.randomUUID();
-    const inviteCode = generateInviteCode();
-    const { error: orgError } = await admin.from("Organization").insert({
-      id: orgId,
-      name: orgName,
-      slug: `gym-${inviteCode.toLowerCase()}`,
-      inviteCode,
-      updatedAt: new Date().toISOString(),
-    });
-
-    if (orgError) {
-      // 23505 = unique violation（inviteCode/slug 撞碼）→ 重生一次
-      if (orgError.code === "23505" && attempt === 0) continue;
-      console.error("[register] organization insert failed:", orgError.message);
-      return;
-    }
-
-    const { error: memberError } = await admin.from("OrganizationMember").insert({
-      id: crypto.randomUUID(),
-      role: "OWNER",
-      orgId,
-      userId,
-      joinedAt: new Date().toISOString(),
-    });
-
-    if (memberError) {
-      console.error("[register] owner membership insert failed:", memberError.message);
-      await admin.from("Organization").delete().eq("id", orgId);
-    }
-    return;
-  }
 }
