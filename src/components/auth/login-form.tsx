@@ -8,6 +8,7 @@ import { z } from "zod";
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/client";
+import GoogleLoginButton from "@/components/auth/google-login-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +32,7 @@ export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered") === "true";
+  const oauthError = searchParams.get("error") === "oauth";
   const [loginError, setLoginError] = useState<string | null>(null);
 
   const {
@@ -83,6 +85,12 @@ export default function LoginForm() {
           </div>
         )}
 
+        {oauthError && (
+          <div className="mb-4 text-sm text-red-400 bg-red-950/40 border border-red-800 rounded-md px-3 py-2">
+            Google 登入失敗，請再試一次
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email" className="text-gray-300">
@@ -130,6 +138,8 @@ export default function LoginForm() {
             {isSubmitting ? "登入中..." : "登入"}
           </Button>
         </form>
+
+        <GoogleLoginButton label="使用 Google 登入" />
       </CardContent>
 
       <CardFooter className="justify-center">
