@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import RollText from "./roll-text";
 
 const anchors = [
   { label: "功能", href: "#features" },
@@ -42,9 +43,9 @@ export default function LandingNav() {
             <a
               key={item.href}
               href={item.href}
-              className="text-sm text-gray-400 transition-colors hover:text-white"
+              className="group text-sm text-gray-400 transition-colors hover:text-white"
             >
-              {item.label}
+              <RollText>{item.label}</RollText>
             </a>
           ))}
         </div>
@@ -52,15 +53,15 @@ export default function LandingNav() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="px-3 py-2 text-sm text-gray-300 transition-colors hover:text-white"
+            className="group px-3 py-2 text-sm text-gray-300 transition-colors hover:text-white"
           >
-            登入
+            <RollText>登入</RollText>
           </Link>
           <Link
             href="/register"
-            className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-400"
+            className="group rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-orange-400"
           >
-            免費註冊
+            <RollText>免費註冊</RollText>
           </Link>
         </div>
       </nav>

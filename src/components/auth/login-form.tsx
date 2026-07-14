@@ -70,15 +70,15 @@ export default function LoginForm() {
   }
 
   return (
-    <Card className="bg-gray-900/80 border-gray-800 text-white backdrop-blur">
-      <CardHeader>
-        <CardTitle className="text-xl text-white">登入</CardTitle>
-        <CardDescription className="text-gray-400">
+    <Card className="bg-gray-900/80 border-gray-800 text-white backdrop-blur py-8">
+      <CardHeader className="px-8">
+        <CardTitle className="text-2xl text-white">登入</CardTitle>
+        <CardDescription className="text-gray-400 text-[15px] mt-1">
           繼續你的訓練計畫
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="px-8">
         {registered && (
           <div className="mb-4 text-sm text-green-400 bg-green-950/40 border border-green-800 rounded-md px-3 py-2">
             帳號建立成功，請登入
@@ -91,36 +91,36 @@ export default function LoginForm() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-gray-300">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-gray-300 text-[15px]">
               Email
             </Label>
             <Input
               id="email"
               type="email"
               placeholder="you@example.com"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-orange-500"
+              className="h-11 px-4 text-base md:text-base bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-orange-500"
               {...register("email")}
             />
             {errors.email && (
-              <p className="text-xs text-red-400">{errors.email.message}</p>
+              <p className="text-sm text-red-400">{errors.email.message}</p>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-gray-300">
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-gray-300 text-[15px]">
               密碼
             </Label>
             <Input
               id="password"
               type="password"
               placeholder="••••••"
-              className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-orange-500"
+              className="h-11 px-4 text-base md:text-base bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-orange-500"
               {...register("password")}
             />
             {errors.password && (
-              <p className="text-xs text-red-400">{errors.password.message}</p>
+              <p className="text-sm text-red-400">{errors.password.message}</p>
             )}
           </div>
 
@@ -133,7 +133,7 @@ export default function LoginForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold mt-2"
+            className="w-full h-11 text-base bg-orange-500 hover:bg-orange-600 text-white font-semibold mt-2"
           >
             {isSubmitting ? "登入中..." : "登入"}
           </Button>
@@ -142,8 +142,8 @@ export default function LoginForm() {
         <GoogleLoginButton label="使用 Google 登入" />
       </CardContent>
 
-      <CardFooter className="justify-center">
-        <p className="text-sm text-gray-400">
+      <CardFooter className="justify-center px-8">
+        <p className="text-[15px] text-gray-400">
           還沒有帳號？{" "}
           <Link
             href="/register"

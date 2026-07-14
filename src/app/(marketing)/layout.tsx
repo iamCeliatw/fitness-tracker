@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import SmoothScroll from "@/components/landing/smooth-scroll";
 
 export const metadata: Metadata = {
   title: "LIFTLOG — 健身追蹤平台",
@@ -15,5 +16,10 @@ export const metadata: Metadata = {
 };
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
-  return <div className="min-h-screen bg-gray-950 text-white">{children}</div>;
+  return (
+    <div className="min-h-screen bg-gray-950 text-white">
+      <SmoothScroll />
+      {children}
+    </div>
+  );
 }
