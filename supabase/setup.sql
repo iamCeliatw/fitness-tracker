@@ -78,7 +78,6 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 ALTER TABLE "BodyRecord" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "WorkoutLog" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "FoodEntry" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "WorkoutPlan" ENABLE ROW LEVEL SECURITY;
 
 -- BodyRecord：本人 + 指派教練 + Org Admin 可讀
 CREATE POLICY "body_records_own" ON "BodyRecord"
