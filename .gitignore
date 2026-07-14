@@ -50,3 +50,6 @@ next-env.d.ts
 /.design-sync/.cache/
 /.design-sync/learnings/
 /.design-sync/node_modules
+
+# 商業文件不進公開 repo
+docs/upwork/
