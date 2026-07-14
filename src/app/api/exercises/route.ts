@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
   let query = admin
     .from("Exercise")
-    .select("id, name, muscleGroup, category")
+    .select("id, name, muscleGroup, category, imageUrl")
     .or(visibility)
     .order("muscleGroup", { ascending: true })
     .order("name", { ascending: true });
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       createdAt: now,
       updatedAt: now,
     })
-    .select("id, name, muscleGroup, category")
+    .select("id, name, muscleGroup, category, imageUrl")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

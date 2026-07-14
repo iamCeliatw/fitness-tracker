@@ -8,12 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ExerciseThumb from "@/components/exercise-thumb";
 
 export type ExerciseItem = {
   id: string;
   name: string;
   muscleGroup: string;
   category: string;
+  imageUrl?: string | null;
 };
 
 const MUSCLE_LABELS: Record<string, string> = {
@@ -153,7 +155,10 @@ export default function WorkoutExercisePicker({
                 }}
                 className="w-full justify-between h-auto py-2 px-3 text-left hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="text-sm text-white">{ex.name}</span>
+                <span className="flex items-center gap-3 min-w-0">
+                  <ExerciseThumb imageUrl={ex.imageUrl} muscleGroup={ex.muscleGroup} name={ex.name} />
+                  <span className="text-sm text-white truncate">{ex.name}</span>
+                </span>
                 <div className="flex items-center gap-1.5">
                   {isSelected && (
                     <span className="text-xs text-gray-500">已加入</span>

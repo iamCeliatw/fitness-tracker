@@ -78,14 +78,15 @@ export async function DELETE(
     return NextResponse.json({ error: "無權限管理此動作" }, { status: 403 });
   }
 
-  const [{ data: logRefs }, { data: planRefs }] = await Promise.all([
-    ctx.admin.from("WorkoutLogExercise").select("id").eq("exerciseId", id).limit(1),
-    ctx.admin.from("WorkoutPlanExercise").select("id").eq("exerciseId", id).limit(1),
-  ]);
+  const { data: logRefs } = await ctx.admin
+    .from("WorkoutLogExercise")
+    .select("id")
+    .eq("exerciseId", id)
+    .limit(1);
 
-  if ((logRefs?.length ?? 0) > 0 || (planRefs?.length ?? 0) > 0) {
+  if ((logRefs?.length ?? 0) > 0) {
     return NextResponse.json(
-      { error: "此動作已被訓練記錄或計畫使用，無法刪除" },
+      { error: "此動作已被訓練記錄使用，無法刪除" },
       { status: 409 }
     );
   }

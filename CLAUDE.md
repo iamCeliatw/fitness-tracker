@@ -100,7 +100,6 @@ Organization          # 租戶（bookingCutoffHours）
 OrganizationMember    # 用戶↔組織關係（OrgRole: OWNER|ADMIN|COACH|MEMBER）
 CoachStudent          # 教練↔學員配對
 Exercise              # 動作庫（肌群、類別）
-WorkoutPlan / WorkoutPlanDay / WorkoutPlanExercise  # 訓練計畫
 WorkoutLog / WorkoutLogExercise / WorkoutSet        # 訓練日誌
 FoodEntry             # 飲食記錄（熱量 + 三大營養素）
 BodyRecord            # 身體量測（體重、體脂率、肌肉量）

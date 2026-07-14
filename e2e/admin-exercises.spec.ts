@@ -172,7 +172,7 @@ test.describe("Admin exercise management", () => {
     await page.getByRole("button", { name: "刪除", exact: true }).click();
 
     await expect(
-      page.getByText("此動作已被訓練記錄或計畫使用，無法刪除")
+      page.getByText("此動作已被訓練記錄使用，無法刪除")
     ).toBeVisible();
     await expect(row).toBeVisible();
   });

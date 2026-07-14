@@ -59,7 +59,6 @@ model User {
   updatedAt DateTime @updatedAt
 
   workoutLogs      WorkoutLog[]
-  workoutPlans     WorkoutPlan[]
   foodEntries      FoodEntry[]
   bodyRecords      BodyRecord[]
   memberships      OrganizationMember[]
@@ -124,6 +123,7 @@ model Exercise {
   id          String           @id @default(cuid())
   name        String
   description String?
+  imageUrl    String? // 內建動作示範照（/exercises/*.jpg，free-exercise-db public domain）
   muscleGroup MuscleGroup
   category    ExerciseCategory
   isCustom    Boolean          @default(false)
@@ -132,50 +132,12 @@ model Exercise {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  org           Organization?         @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  planExercises WorkoutPlanExercise[]
-  logExercises  WorkoutLogExercise[]
+  org          Organization?        @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  logExercises WorkoutLogExercise[]
 
   @@index([orgId])
 }
 
-// ─── Workout Plan ─────────────────────────────────────────────────────────────
-
-model WorkoutPlan {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  isActive    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  userId String
-  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  days   WorkoutPlanDay[]
-}
-
-model WorkoutPlanDay {
-  id        String @id @default(cuid())
-  dayOfWeek Int
-  name      String?
-
-  planId    String
-  plan      WorkoutPlan           @relation(fields: [planId], references: [id], onDelete: Cascade)
-  exercises WorkoutPlanExercise[]
-}
-
-model WorkoutPlanExercise {
-  id     String @id @default(cuid())
-  sets   Int
-  reps   Int?
-  weight Float?
-  order  Int    @default(0)
-
-  dayId      String
-  day        WorkoutPlanDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
-  exerciseId String
-  exercise   Exercise       @relation(fields: [exerciseId], references: [id])
-}
 
 // ─── Workout Log ─────────────────────────────────────────────────────────────
 

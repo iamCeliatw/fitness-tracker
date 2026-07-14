@@ -56,7 +56,7 @@
 | Database | Supabase（PostgreSQL）+ Prisma 7 |
 | Auth | Supabase Auth（JWT session cookie） |
 | Forms | react-hook-form + zod |
-| Testing | Vitest + React Testing Library + Playwright（17 支 E2E spec） |
+| Testing | Vitest + React Testing Library + Playwright（19 支 E2E spec） |
 | Deploy | Vercel |
 
 ## 架構亮點
