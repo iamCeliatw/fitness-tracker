@@ -19,13 +19,13 @@ export default function GoogleLoginButton({ label }: { label: string }) {
   }
 
   return (
-    <div className="mt-4">
-      <div className="relative mb-4">
+    <div className="mt-6">
+      <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t border-gray-800" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-gray-900 px-2 text-xs text-gray-500">或</span>
+          <span className="bg-gray-900 px-3 text-sm text-gray-500">或</span>
         </div>
       </div>
       <Button
@@ -33,9 +33,9 @@ export default function GoogleLoginButton({ label }: { label: string }) {
         variant="outline"
         disabled={pending}
         onClick={handleClick}
-        className="w-full border-gray-700 bg-gray-800 text-white hover:bg-gray-700 hover:text-white transition-colors"
+        className="w-full h-11 text-base border-gray-700 bg-gray-800 text-white hover:bg-gray-700 hover:text-white transition-colors"
       >
-        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24" aria-hidden="true">
           <path
             fill="#4285F4"
             d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"

@@ -10,7 +10,7 @@ export default function HeroMock() {
         aria-hidden
         className="absolute -inset-8 rounded-[2rem] bg-orange-500/15 blur-3xl"
       />
-      <div className="relative overflow-hidden rounded-xl border border-gray-800 bg-gray-900/80 p-4 text-left shadow-2xl sm:p-6">
+      <div className="relative overflow-hidden rounded-xl border border-gray-800 bg-gray-900/80 p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_25px_50px_-12px_rgba(0,0,0,0.5)] sm:p-6">
         {/* 統計卡列 */}
         <div className="grid grid-cols-3 gap-3">
           {[

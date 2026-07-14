@@ -10,6 +10,35 @@
   }
 }
 
+/* Lenis 平滑滾動啟用時，關閉原生 smooth 避免兩者打架（lenis 官方建議） */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Landing hero 進場動畫（配合 animate-[...] arbitrary utility 使用） */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes rise-full {
+  from {
+    transform: translateY(110%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

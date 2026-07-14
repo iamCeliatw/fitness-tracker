@@ -50,7 +50,9 @@ const registerSchema = z
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const inputClass =
-  "bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-orange-500";
+  "h-11 px-4 text-base md:text-base bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus-visible:ring-orange-500";
+
+const labelClass = "text-gray-300 text-[15px]";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -87,18 +89,18 @@ export default function RegisterForm() {
   }
 
   return (
-    <Card className="bg-gray-900/80 border-gray-800 text-white backdrop-blur">
-      <CardHeader>
-        <CardTitle className="text-xl text-white">建立帳號</CardTitle>
-        <CardDescription className="text-gray-400">
+    <Card className="bg-gray-900/80 border-gray-800 text-white backdrop-blur py-8">
+      <CardHeader className="px-8">
+        <CardTitle className="text-2xl text-white">建立帳號</CardTitle>
+        <CardDescription className="text-gray-400 text-[15px] mt-1">
           開始追蹤你的訓練旅程
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="name" className="text-gray-300">
+      <CardContent className="px-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="name" className={labelClass}>
               姓名
             </Label>
             <Input
@@ -108,12 +110,12 @@ export default function RegisterForm() {
               {...register("name")}
             />
             {errors.name && (
-              <p className="text-xs text-red-400">{errors.name.message}</p>
+              <p className="text-sm text-red-400">{errors.name.message}</p>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email" className="text-gray-300">
+          <div className="space-y-2">
+            <Label htmlFor="email" className={labelClass}>
               Email
             </Label>
             <Input
@@ -124,12 +126,12 @@ export default function RegisterForm() {
               {...register("email")}
             />
             {errors.email && (
-              <p className="text-xs text-red-400">{errors.email.message}</p>
+              <p className="text-sm text-red-400">{errors.email.message}</p>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password" className="text-gray-300">
+          <div className="space-y-2">
+            <Label htmlFor="password" className={labelClass}>
               密碼
             </Label>
             <Input
@@ -140,7 +142,7 @@ export default function RegisterForm() {
               {...register("password")}
             />
             {errors.password && (
-              <p className="text-xs text-red-400">{errors.password.message}</p>
+              <p className="text-sm text-red-400">{errors.password.message}</p>
             )}
           </div>
 
@@ -150,18 +152,24 @@ export default function RegisterForm() {
               setValue("mode", v as RegisterFormValues["mode"])
             }
           >
-            <TabsList className="w-full bg-gray-800">
-              <TabsTrigger value="create" className="flex-1 transition-colors">
+            <TabsList className="w-full bg-gray-800 h-11">
+              <TabsTrigger
+                value="create"
+                className="flex-1 text-[15px] transition-colors"
+              >
                 建立健身房
               </TabsTrigger>
-              <TabsTrigger value="join" className="flex-1 transition-colors">
+              <TabsTrigger
+                value="join"
+                className="flex-1 text-[15px] transition-colors"
+              >
                 我有邀請碼
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="create" className="pt-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="orgName" className="text-gray-300">
+            <TabsContent value="create" className="pt-3">
+              <div className="space-y-2">
+                <Label htmlFor="orgName" className={labelClass}>
                   健身房名稱
                 </Label>
                 <Input
@@ -170,20 +178,20 @@ export default function RegisterForm() {
                   className={inputClass}
                   {...register("orgName")}
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-sm text-gray-500">
                   你將成為這間健身房的管理者
                 </p>
                 {errors.orgName && (
-                  <p className="text-xs text-red-400">
+                  <p className="text-sm text-red-400">
                     {errors.orgName.message}
                   </p>
                 )}
               </div>
             </TabsContent>
 
-            <TabsContent value="join" className="pt-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="inviteCode" className="text-gray-300">
+            <TabsContent value="join" className="pt-3">
+              <div className="space-y-2">
+                <Label htmlFor="inviteCode" className={labelClass}>
                   邀請碼
                 </Label>
                 <Input
@@ -193,7 +201,7 @@ export default function RegisterForm() {
                   {...register("inviteCode")}
                 />
                 {errors.inviteCode && (
-                  <p className="text-xs text-red-400">
+                  <p className="text-sm text-red-400">
                     {errors.inviteCode.message}
                   </p>
                 )}
@@ -210,7 +218,7 @@ export default function RegisterForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold mt-2 transition-colors"
+            className="w-full h-11 text-base bg-orange-500 hover:bg-orange-600 text-white font-semibold mt-2 transition-colors"
           >
             {isSubmitting ? "建立中..." : "建立帳號"}
           </Button>
@@ -219,8 +227,8 @@ export default function RegisterForm() {
         <GoogleLoginButton label="使用 Google 註冊" />
       </CardContent>
 
-      <CardFooter className="justify-center">
-        <p className="text-sm text-gray-400">
+      <CardFooter className="justify-center px-8">
+        <p className="text-[15px] text-gray-400">
           已有帳號？{" "}
           <Link
             href="/login"
