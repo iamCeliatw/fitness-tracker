@@ -38,6 +38,7 @@ export async function proxy(request: NextRequest) {
     path.startsWith("/auth/callback") || // OAuth 回跳時尚無 session
     path.startsWith("/api/") ||
     path.startsWith("/_next") ||
+    path.startsWith("/exercises/") || // 動作示範照靜態資產（optimizer 內部 fetch 無 session）
     path.startsWith("/favicon");
 
   if (!user && !isPublicPath) {
@@ -48,5 +49,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|exercises/).*)"],
 };

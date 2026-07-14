@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import ExerciseFormDialog from "./exercise-form-dialog";
+import ExerciseThumb from "@/components/exercise-thumb";
 import {
   MUSCLE_GROUPS,
   MUSCLE_LABELS,
@@ -30,6 +31,7 @@ export type ExerciseRow = {
   isCustom: boolean;
   createdById: string | null;
   orgId: string | null;
+  imageUrl: string | null;
 };
 
 const FILTER_TABS = ["ALL", ...MUSCLE_GROUPS] as const;
@@ -129,7 +131,8 @@ export default function ExercisesManager({
                 key={ex.id}
                 className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-900 px-4 py-3 transition-colors duration-150 hover:border-gray-700"
               >
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  <ExerciseThumb imageUrl={ex.imageUrl} muscleGroup={ex.muscleGroup} name={ex.name} />
                   <span className="font-medium truncate">{ex.name}</span>
                   <span className="text-xs px-2 py-0.5 rounded-full border border-gray-700 text-gray-400 shrink-0">
                     {MUSCLE_LABELS[ex.muscleGroup] ?? ex.muscleGroup}

@@ -53,3 +53,4 @@ next-env.d.ts
 
 # 商業文件不進公開 repo
 docs/upwork/
+.superpowers/

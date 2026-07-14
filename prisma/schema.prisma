@@ -123,6 +123,7 @@ model Exercise {
   id          String           @id @default(cuid())
   name        String
   description String?
+  imageUrl    String? // 內建動作示範照（/exercises/*.jpg，free-exercise-db public domain）
   muscleGroup MuscleGroup
   category    ExerciseCategory
   isCustom    Boolean          @default(false)
