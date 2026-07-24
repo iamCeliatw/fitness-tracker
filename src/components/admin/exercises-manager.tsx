@@ -20,11 +20,15 @@ import {
   MUSCLE_GROUPS,
   MUSCLE_LABELS,
   CATEGORY_LABELS,
+  localizedExerciseName,
 } from "@/lib/exercise-labels";
+import { useLocale } from "next-intl";
 
 export type ExerciseRow = {
   id: string;
   name: string;
+  nameEn?: string | null;
+  nameJa?: string | null;
   description: string | null;
   muscleGroup: string;
   category: string;
@@ -43,6 +47,7 @@ export default function ExercisesManager({
   initialExercises: ExerciseRow[];
   viewerOrgId: string | null;
 }) {
+  const locale = useLocale();
   const [exercises, setExercises] = useState<ExerciseRow[]>(initialExercises);
   const [muscleFilter, setMuscleFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
@@ -73,7 +78,11 @@ export default function ExercisesManager({
 
   const filtered = exercises.filter((ex) => {
     if (muscleFilter !== "ALL" && ex.muscleGroup !== muscleFilter) return false;
-    if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (search) {
+      const displayName = localizedExerciseName(ex, locale);
+      if (!displayName.toLowerCase().includes(search.toLowerCase()) &&
+          !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
+    }
     return true;
   });
 
@@ -133,7 +142,7 @@ export default function ExercisesManager({
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <ExerciseThumb imageUrl={ex.imageUrl} muscleGroup={ex.muscleGroup} name={ex.name} />
-                  <span className="font-medium truncate">{ex.name}</span>
+                  <span className="font-medium truncate">{localizedExerciseName(ex, locale)}</span>
                   <span className="text-xs px-2 py-0.5 rounded-full border border-gray-700 text-gray-400 shrink-0">
                     {MUSCLE_LABELS[ex.muscleGroup] ?? ex.muscleGroup}
                   </span>

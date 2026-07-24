@@ -17,6 +17,9 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const range = Number(req.nextUrl.searchParams.get("range") ?? "90");
+  if (!Number.isFinite(range) || range <= 0) {
+    return NextResponse.json({ error: "無效的 range 參數" }, { status: 400 });
+  }
   const since = startOfDay(subDays(new Date(), range));
 
   const admin = await createAdminClient();

@@ -214,7 +214,7 @@ export default function WorkoutLogForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Basic info */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label className="text-gray-300 text-xs">訓練日期</Label>
           <Input

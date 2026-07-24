@@ -1,11 +1,11 @@
 ## ADDED Requirements
 
 ### Requirement: User can browse and select exercises from the library
-系統 SHALL 提供 Dialog 選擇器，讓用戶從動作庫瀏覽並按肌群篩選，選取後加入當次訓練表單。
+系統 SHALL 提供 Dialog 選擇器，讓用戶從動作庫瀏覽並按肌群篩選，選取後加入當次訓練表單。清單每列 SHALL 在名稱左側顯示 52px 動作縮圖（`imageUrl` 為 null 時顯示肌群字首 fallback 方塊）。
 
 #### Scenario: Open exercise picker
 - **WHEN** 用戶點擊「新增動作」按鈕
-- **THEN** 彈出 Dialog，顯示動作庫清單（名稱 + 肌群 badge）
+- **THEN** 彈出 Dialog，顯示動作庫清單（縮圖 + 名稱 + 肌群 badge）
 
 #### Scenario: Filter by muscle group
 - **WHEN** 用戶點擊某個肌群 Tab（如「CHEST」）
@@ -32,7 +32,7 @@
 
 #### Scenario: Fetch all exercises
 - **WHEN** 某館成員呼叫 `GET /api/exercises`（無 query param）
-- **THEN** 回傳全域內建、本館自訂與自己的個人自訂動作（id, name, muscleGroup, category），不含其他館的動作
+- **THEN** 回傳全域內建、本館自訂與自己的個人自訂動作（id, name, muscleGroup, category, imageUrl），不含其他館的動作
 
 #### Scenario: Filter by muscle group
 - **WHEN** 呼叫 `GET /api/exercises?muscleGroup=CHEST`

@@ -5,7 +5,7 @@ import { setAuditActor } from "@/lib/auth-helpers";
 
 const respondSchema = z.object({
   action: z.enum(["confirm", "reject"]),
-  reason: z.string().optional(),
+  reason: z.string().max(1000).optional(),
 });
 
 export async function PATCH(

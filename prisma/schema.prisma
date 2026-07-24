@@ -99,6 +99,7 @@ model OrganizationMember {
   userId String
   user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId])
   @@unique([orgId, userId])
 }
 
@@ -122,6 +123,8 @@ model CoachStudent {
 model Exercise {
   id          String           @id @default(cuid())
   name        String
+  nameEn      String?
+  nameJa      String?
   description String?
   imageUrl    String? // 內建動作示範照（/exercises/*.jpg，free-exercise-db public domain）
   muscleGroup MuscleGroup

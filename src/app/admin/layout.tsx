@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminSidebar from "@/components/admin/admin-sidebar";
+import LocaleSwitcher from "@/components/locale-switcher";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const supabase = await createClient();
@@ -25,7 +26,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   return (
     <div className="flex h-screen bg-gray-950 text-white">
       <AdminSidebar isAdmin={isAdmin} isOwner={isOwner} isOrgManager={isOrgManager} />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative">
+        <div className="absolute top-4 right-4 z-10">
+          <LocaleSwitcher />
+        </div>
         {children}
       </main>
     </div>

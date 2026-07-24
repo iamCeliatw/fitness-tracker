@@ -12,16 +12,18 @@ import {
   Users,
 } from "lucide-react";
 import LogoutButton from "@/components/auth/logout-button";
+import LocaleSwitcher from "@/components/locale-switcher";
+import { useTranslations } from "next-intl";
 
-const baseItems = [
-  { label: "總覽", href: "/dashboard", icon: LayoutDashboard },
-  { label: "訓練", href: "/dashboard/workout", icon: Dumbbell },
-  { label: "體重", href: "/dashboard/body", icon: Weight },
-  { label: "飲食", href: "/dashboard/food", icon: Utensils },
+const BASE_ITEM_KEYS = [
+  { key: "overview" as const, href: "/dashboard", icon: LayoutDashboard },
+  { key: "workout" as const, href: "/dashboard/workout", icon: Dumbbell },
+  { key: "body" as const, href: "/dashboard/body", icon: Weight },
+  { key: "food" as const, href: "/dashboard/food", icon: Utensils },
 ];
 
-const bookingItem = { label: "預約", href: "/dashboard/booking", icon: CalendarDays };
-const coachItem = { label: "教練", href: "/dashboard/coach", icon: Users };
+const BOOKING_ITEM = { key: "booking" as const, href: "/dashboard/booking", icon: CalendarDays };
+const COACH_ITEM = { key: "coach" as const, href: "/dashboard/coach", icon: Users };
 
 type DashboardNavProps = {
   name: string;
@@ -45,7 +47,7 @@ function Avatar({ url, name }: { url: string; name: string }) {
   );
 }
 
-function RoleBadge({ isCoach }: { isCoach: boolean }) {
+function RoleBadge({ isCoach, label }: { isCoach: boolean; label: string }) {
   return (
     <span
       className={`text-xs px-2 py-0.5 rounded-full border shrink-0 ${
@@ -54,7 +56,7 @@ function RoleBadge({ isCoach }: { isCoach: boolean }) {
           : "border-gray-700 text-gray-400"
       }`}
     >
-      {isCoach ? "教練" : "會員"}
+      {label}
     </span>
   );
 }
@@ -69,12 +71,13 @@ function Brand({ className }: { className?: string }) {
 
 export default function DashboardNav({ name, orgRole, avatarUrl }: DashboardNavProps) {
   const pathname = usePathname();
+  const t = useTranslations("nav");
   const isCoach = orgRole === "COACH";
 
   const desktopItems = isCoach
-    ? [...baseItems, bookingItem, coachItem]
-    : [...baseItems, bookingItem];
-  const mobileItems = [...baseItems, isCoach ? coachItem : bookingItem];
+    ? [...BASE_ITEM_KEYS, BOOKING_ITEM, COACH_ITEM]
+    : [...BASE_ITEM_KEYS, BOOKING_ITEM];
+  const mobileItems = [...BASE_ITEM_KEYS, isCoach ? COACH_ITEM : BOOKING_ITEM];
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -89,7 +92,7 @@ export default function DashboardNav({ name, orgRole, avatarUrl }: DashboardNavP
           <Brand />
         </div>
         <div className="flex-1 px-3 py-4 space-y-1">
-          {desktopItems.map(({ label, href, icon: Icon }) => (
+          {desktopItems.map(({ key, href, icon: Icon }) => (
             <Link
               key={href}
               href={href}
@@ -100,7 +103,7 @@ export default function DashboardNav({ name, orgRole, avatarUrl }: DashboardNavP
               }`}
             >
               <Icon className="h-5 w-5 shrink-0" />
-              {label}
+              {t(key)}
             </Link>
           ))}
         </div>
@@ -108,9 +111,12 @@ export default function DashboardNav({ name, orgRole, avatarUrl }: DashboardNavP
           <div className="flex items-center gap-2 px-3 pb-2">
             {avatarUrl && <Avatar url={avatarUrl} name={name} />}
             <span className="text-sm font-medium text-white truncate">{name}</span>
-            <RoleBadge isCoach={isCoach} />
+            <RoleBadge isCoach={isCoach} label={isCoach ? t("coach") : t("memberRole")} />
           </div>
-          <LogoutButton />
+          <div className="flex items-center justify-between">
+            <LogoutButton />
+            <LocaleSwitcher />
+          </div>
         </div>
       </nav>
 
@@ -119,7 +125,8 @@ export default function DashboardNav({ name, orgRole, avatarUrl }: DashboardNavP
         <Brand className="text-base" />
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-200 truncate max-w-32">{name}</span>
-          <RoleBadge isCoach={isCoach} />
+          <RoleBadge isCoach={isCoach} label={isCoach ? t("coach") : t("memberRole")} />
+          <LocaleSwitcher />
           <LogoutButton
             iconOnly
             className="p-1.5 rounded-lg text-gray-400 hover:text-white transition-colors duration-150"
@@ -129,7 +136,7 @@ export default function DashboardNav({ name, orgRole, avatarUrl }: DashboardNavP
 
       {/* Mobile bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 md:hidden flex bg-gray-900 border-t border-gray-800 z-50">
-        {mobileItems.map(({ label, href, icon: Icon }) => (
+        {mobileItems.map(({ key, href, icon: Icon }) => (
           <Link
             key={href}
             href={href}
@@ -138,7 +145,7 @@ export default function DashboardNav({ name, orgRole, avatarUrl }: DashboardNavP
             }`}
           >
             <Icon className="h-5 w-5" />
-            <span className="text-xs mt-0.5">{label}</span>
+            <span className="text-xs mt-0.5">{t(key)}</span>
           </Link>
         ))}
       </nav>

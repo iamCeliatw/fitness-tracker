@@ -41,7 +41,7 @@ export async function requireRole(role: "USER" | "ADMIN") {
 }
 
 // OrgRole 階層：高位角色自動通過低位檢查（OWNER 兼教練等）
-const ORG_ROLE_RANK: Record<OrgRole, number> = {
+export const ORG_ROLE_RANK: Record<OrgRole, number> = {
   OWNER: 4,
   ADMIN: 3,
   COACH: 2,

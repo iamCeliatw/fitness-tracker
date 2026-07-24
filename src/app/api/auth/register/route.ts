@@ -5,21 +5,22 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { createOrgWithOwner, findOrgByInviteCode, joinOrgAsMember } from "@/lib/org";
 
 const baseFields = {
-  name: z.string().min(1, "姓名為必填"),
+  name: z.string().min(1, "姓名為必填").max(128),
   email: z.string().email("請輸入有效的 Email"),
-  password: z.string().min(6, "密碼至少 6 個字元"),
+  password: z.string().min(8, "密碼至少 8 個字元").max(128),
+  adminSecret: z.string().optional(),
 };
 
 const registerSchema = z.discriminatedUnion("mode", [
   z.object({
     ...baseFields,
     mode: z.literal("create"),
-    orgName: z.string().min(1, "健身房名稱為必填"),
+    orgName: z.string().min(1, "健身房名稱為必填").max(128),
   }),
   z.object({
     ...baseFields,
     mode: z.literal("join"),
-    inviteCode: z.string().min(1, "邀請碼為必填"),
+    inviteCode: z.string().min(1, "邀請碼為必填").max(22),
   }),
 ]);
 
@@ -79,15 +80,21 @@ export async function POST(req: NextRequest) {
   if (parsed.data.mode === "join") {
     const memberError = await joinOrgAsMember(admin, joinOrgId!, userId);
     if (memberError) {
-      console.error("[register] membership insert failed:", memberError);
+      console.error("[register] membership insert failed:", memberError.message);
     }
   } else {
     await createOrgWithOwner(admin, parsed.data.orgName, userId);
   }
 
-  // Bootstrap admin：email 相符（不分大小寫）自動升為全域 ADMIN
+  // Bootstrap admin：email + adminSecret 皆吻合才升權；secret 未設定時跳過
   const bootstrapEmail = process.env.BOOTSTRAP_ADMIN_EMAIL;
-  if (bootstrapEmail && email.toLowerCase() === bootstrapEmail.toLowerCase()) {
+  const bootstrapSecret = process.env.BOOTSTRAP_ADMIN_SECRET;
+  if (
+    bootstrapEmail &&
+    bootstrapSecret &&
+    email.toLowerCase() === bootstrapEmail.toLowerCase() &&
+    parsed.data.adminSecret === bootstrapSecret
+  ) {
     const { error: roleError } = await admin
       .from("User")
       .update({ role: "ADMIN" })

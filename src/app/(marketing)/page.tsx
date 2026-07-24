@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import LandingNav from "@/components/landing/landing-nav";
 import HeroMock from "@/components/landing/hero-mock";
 import Reveal from "@/components/landing/reveal";
@@ -6,7 +7,9 @@ import RoleCircles from "@/components/landing/role-circles";
 import RollText from "@/components/landing/roll-text";
 import StickyFeatures from "@/components/landing/sticky-features";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  // ponytail: POC smoke-test — remove once strings are wired per task 3.x
+  await getTranslations("common");
   return (
     <>
       <LandingNav />

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { getOrgContext } from "@/lib/auth-helpers";
 
 export async function DELETE(
   _req: NextRequest,
@@ -20,6 +21,11 @@ export async function DELETE(
 
   if (!slot) return NextResponse.json({ error: "時段不存在" }, { status: 404 });
   if (slot.coachId !== user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  // Re-verify current org role (guards against demoted coaches using stale tokens)
+  const ctx = await getOrgContext("COACH");
+  if (!ctx) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   if (slot.status === "BOOKED") {
     return NextResponse.json({ error: "請先取消該時段的預約" }, { status: 409 });
   }

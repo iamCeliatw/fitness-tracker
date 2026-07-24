@@ -1,0 +1,159 @@
+{
+  "common": {
+    "appName": "LiftLog",
+    "loading": "載入中...",
+    "save": "儲存",
+    "cancel": "取消",
+    "delete": "刪除",
+    "edit": "編輯",
+    "confirm": "確認",
+    "back": "返回",
+    "noData": "尚無資料"
+  },
+  "nav": {
+    "overview": "總覽",
+    "workout": "訓練",
+    "body": "體重",
+    "food": "飲食",
+    "booking": "預約",
+    "coach": "教練",
+    "admin": "管理",
+    "logout": "登出",
+    "memberRole": "會員",
+    "adminDashboard": "儀表板",
+    "members": "成員",
+    "exercises": "動作庫",
+    "settings": "設定"
+  },
+  "auth": {
+    "login": "登入",
+    "register": "註冊",
+    "email": "電子信箱",
+    "password": "密碼",
+    "name": "姓名",
+    "loginButton": "登入",
+    "registerButton": "建立帳號",
+    "noAccount": "還沒有帳號？",
+    "hasAccount": "已有帳號？",
+    "loginHere": "點此登入",
+    "registerHere": "點此註冊"
+  },
+  "workout": {
+    "title": "訓練日誌",
+    "newWorkout": "新增訓練",
+    "addWorkout": "新增訓練",
+    "noWorkouts": "還沒有訓練記錄，立即開始今日訓練！",
+    "date": "訓練日期",
+    "duration": "訓練時長（分鐘）",
+    "notes": "備註",
+    "notesPlaceholder": "今天訓練狀況...",
+    "exercises": "動作清單",
+    "addExercise": "新增動作",
+    "addSet": "新增一組",
+    "saveWorkout": "儲存訓練",
+    "saving": "儲存中...",
+    "reps": "次數",
+    "weight": "重量 (kg)",
+    "sets": "組",
+    "backToLog": "返回日誌",
+    "desc": "選擇動作並記錄每組的重量與次數",
+    "clickToStart": "點擊新增動作開始記錄",
+    "deleteConfirmTitle": "確定要刪除這筆訓練？",
+    "deleteConfirmDesc": "此操作無法復原，所有組數紀錄將一併刪除。",
+    "emptySetError": "每個動作至少需要一組有效的記錄（填入次數或重量）"
+  },
+  "body": {
+    "title": "身體量測",
+    "newRecord": "新增量測記錄",
+    "weight": "體重 kg",
+    "bodyFat": "體脂率 %",
+    "muscleMass": "肌肉量 kg",
+    "notes": "備註",
+    "notesPlaceholder": "今天狀態...",
+    "save": "新增記錄",
+    "history": "歷史記錄",
+    "noHistory": "還沒有量測記錄",
+    "chartHint": "記錄 2 筆以上數據後將顯示趨勢圖",
+    "deleteConfirmTitle": "確定要刪除這筆記錄？",
+    "deleteConfirmDesc": "此操作無法復原。",
+    "30days": "近 30 天",
+    "90days": "近 90 天"
+  },
+  "food": {
+    "title": "飲食記錄",
+    "desc": "記錄每日熱量與三大營養素攝取",
+    "newRecord": "新增飲食記錄",
+    "date": "日期",
+    "mealType": "餐別",
+    "name": "食物名稱",
+    "namePlaceholder": "雞胸肉",
+    "calories": "熱量 kcal",
+    "protein": "蛋白質 g",
+    "carbs": "碳水 g",
+    "fat": "脂肪 g",
+    "addRecord": "新增記錄",
+    "saving": "儲存中...",
+    "noRecords": "今天還沒有飲食記錄",
+    "deleteConfirmTitle": "確定要刪除這筆記錄？",
+    "deleteConfirmDesc": "此操作無法復原。",
+    "meal": {
+      "BREAKFAST": "早餐",
+      "LUNCH": "午餐",
+      "DINNER": "晚餐",
+      "SNACK": "點心"
+    },
+    "summary": {
+      "calories": "熱量",
+      "protein": "蛋白質",
+      "carbs": "碳水",
+      "fat": "脂肪"
+    }
+  },
+  "booking": {
+    "title": "預約教練",
+    "myBookings": "我的預約",
+    "available": "可預約時段",
+    "noSlots": "目前沒有可預約的時段",
+    "noBookings": "目前沒有預約記錄",
+    "book": "預約",
+    "cancel": "取消預約",
+    "cancelConfirmTitle": "確定要取消預約？",
+    "cancelConfirmDesc": "此操作無法復原。",
+    "status": {
+      "CONFIRMED": "已確認",
+      "CANCELLED": "已取消",
+      "PENDING": "待確認"
+    }
+  },
+  "coach": {
+    "title": "教練 Dashboard",
+    "students": "本週學員進度",
+    "schedule": "本週行程",
+    "addSlot": "新增時段",
+    "noStudents": "目前沒有配對的學員",
+    "noSchedule": "本週沒有預約時段"
+  },
+  "admin": {
+    "title": "管理後台",
+    "members": "成員管理",
+    "exercises": "動作管理",
+    "settings": "設定",
+    "auditLogs": "稽核紀錄",
+    "addMember": "新增成員",
+    "addExercise": "新增動作",
+    "save": "儲存設定",
+    "saving": "儲存中..."
+  },
+  "validation": {
+    "required": "此欄位為必填",
+    "emailInvalid": "電子信箱格式錯誤",
+    "passwordMin": "密碼至少 6 個字元",
+    "positiveNumber": "請輸入正數",
+    "dateFormat": "日期格式錯誤"
+  },
+  "locale": {
+    "zh-TW": "中文",
+    "en": "English",
+    "ja": "日本語"
+  }
+}
