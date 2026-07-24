@@ -6,11 +6,11 @@ import { createOrgWithOwner, findOrgByInviteCode, joinOrgAsMember } from "@/lib/
 const onboardingSchema = z.discriminatedUnion("mode", [
   z.object({
     mode: z.literal("create"),
-    orgName: z.string().min(1, "健身房名稱為必填"),
+    orgName: z.string().min(1, "健身房名稱為必填").max(128),
   }),
   z.object({
     mode: z.literal("join"),
-    inviteCode: z.string().min(1, "邀請碼為必填"),
+    inviteCode: z.string().min(1, "邀請碼為必填").max(22),
   }),
 ]);
 
@@ -50,12 +50,18 @@ export async function POST(req: NextRequest) {
     }
     const memberError = await joinOrgAsMember(admin, orgId, user.id);
     if (memberError) {
-      console.error("[onboarding] membership insert failed:", memberError);
+      if (memberError.code === "23505") {
+        return NextResponse.json({ error: "已有 membership" }, { status: 409 });
+      }
+      console.error("[onboarding] membership insert failed:", memberError.message);
       return NextResponse.json({ error: "加入失敗，請稍後再試" }, { status: 500 });
     }
   } else {
-    const orgId = await createOrgWithOwner(admin, parsed.data.orgName, user.id);
-    if (!orgId) {
+    const result = await createOrgWithOwner(admin, parsed.data.orgName, user.id);
+    if (result === "DUPLICATE") {
+      return NextResponse.json({ error: "已有 membership" }, { status: 409 });
+    }
+    if (!result) {
       return NextResponse.json({ error: "建立失敗，請稍後再試" }, { status: 500 });
     }
   }

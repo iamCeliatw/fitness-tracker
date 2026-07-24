@@ -6,7 +6,7 @@ import { expireStalePending } from "@/lib/appointments";
 
 const bookSchema = z.object({
   slotId: z.string().min(1),
-  notes: z.string().optional(),
+  notes: z.string().max(2000).optional(),
 });
 
 export async function GET(_req: NextRequest) {
@@ -71,6 +71,15 @@ export async function POST(req: NextRequest) {
   if (slot.status !== "OPEN")
     return NextResponse.json({ error: "此時段已被預約" }, { status: 409 });
 
+  // Verify user is a member of the slot's org
+  const { data: member } = await admin
+    .from("OrganizationMember")
+    .select("id")
+    .eq("userId", user.id)
+    .eq("orgId", slot.orgId)
+    .maybeSingle();
+  if (!member) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   // Cutoff check
   const org = slot.org as {
     bookingCutoffHours: number;
@@ -122,6 +131,18 @@ export async function POST(req: NextRequest) {
     ),
   ).toISOString();
 
+  // Atomic slot claim: conditional UPDATE ensures only one concurrent booking succeeds
+  const { data: claimedSlot } = await admin
+    .from("AppointmentSlot")
+    .update({ status: "BOOKED" })
+    .eq("id", slotId)
+    .eq("status", "OPEN")
+    .select("id")
+    .single();
+  if (!claimedSlot) {
+    return NextResponse.json({ error: "此時段已被預約" }, { status: 409 });
+  }
+
   // Check if a stale appointment already exists for this slot (CANCELLED / REJECTED / EXPIRED)
   // slotId is @unique so we must UPDATE rather than INSERT in that case
   const { data: existingApt } = await admin
@@ -171,18 +192,10 @@ export async function POST(req: NextRequest) {
     aptError = error;
   }
 
-  if (aptError)
+  if (aptError) {
+    // Compensate: release the slot we just claimed
+    await admin.from("AppointmentSlot").update({ status: "OPEN" }).eq("id", slotId);
     return NextResponse.json({ error: aptError.message }, { status: 500 });
-
-  const { error: slotError } = await admin
-    .from("AppointmentSlot")
-    .update({ status: "BOOKED" })
-    .eq("id", slotId);
-
-  if (slotError) {
-    // Compensate: delete the appointment
-    await admin.from("Appointment").delete().eq("id", appointment?.id);
-    return NextResponse.json({ error: slotError.message }, { status: 500 });
   }
 
   return NextResponse.json(appointment, { status: 201 });

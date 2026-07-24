@@ -21,6 +21,9 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const dateParam = req.nextUrl.searchParams.get("date");
+  if (dateParam && !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+    return NextResponse.json({ error: "日期格式錯誤" }, { status: 400 });
+  }
   const target = dateParam ? new Date(dateParam) : new Date();
   const from = startOfDay(target);
   const to = endOfDay(target);

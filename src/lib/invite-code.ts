@@ -1,4 +1,9 @@
-// 8 碼大寫英數邀請碼（hex 字元集）；唯一性由 DB unique constraint 把關，撞碼由呼叫端重生
+// 22-char base64url invite code (128-bit entropy via crypto.getRandomValues)
 export function generateInviteCode() {
-  return crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "")
+    .slice(0, 22);
 }

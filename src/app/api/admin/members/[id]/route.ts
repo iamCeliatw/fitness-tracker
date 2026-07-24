@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getOrgContext, setAuditActor } from "@/lib/auth-helpers";
+import { getOrgContext, setAuditActor, ORG_ROLE_RANK } from "@/lib/auth-helpers";
+import type { OrgRole } from "@/generated/prisma/enums";
 
 const patchSchema = z.object({
   role: z.enum(["COACH", "MEMBER"]),
@@ -33,6 +34,10 @@ export async function PATCH(
     return NextResponse.json({ error: "找不到該成員" }, { status: 404 });
   }
   if (membership.orgId !== ctx.orgId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  // Rank guard: cannot modify members at or above your own rank
+  if (ORG_ROLE_RANK[membership.role as OrgRole] >= ORG_ROLE_RANK[ctx.role]) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
