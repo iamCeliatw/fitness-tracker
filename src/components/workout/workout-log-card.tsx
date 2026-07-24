@@ -12,6 +12,8 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useLocale } from "next-intl";
+import { localizedExerciseName } from "@/lib/exercise-labels";
 
 const MUSCLE_LABELS: Record<string, string> = {
   CHEST: "胸", BACK: "背", SHOULDERS: "肩", ARMS: "手臂",
@@ -26,6 +28,8 @@ export type WorkoutLogSummary = {
   exercises: {
     id: string;
     exerciseName: string;
+    nameEn?: string | null;
+    nameJa?: string | null;
     muscleGroup: string;
     sets: { setNumber: number; reps: number | null; weight: number | null }[];
   }[];
@@ -37,6 +41,7 @@ interface WorkoutLogCardProps {
 
 export default function WorkoutLogCard({ log }: WorkoutLogCardProps) {
   const router = useRouter();
+  const locale = useLocale();
   const [expanded, setExpanded] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -115,7 +120,7 @@ export default function WorkoutLogCard({ log }: WorkoutLogCardProps) {
                 {log.exercises.map((ex) => (
                   <div key={ex.id}>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-gray-300 text-sm font-medium">{ex.exerciseName}</span>
+                      <span className="text-gray-300 text-sm font-medium">{localizedExerciseName({ name: ex.exerciseName, nameEn: ex.nameEn, nameJa: ex.nameJa }, locale)}</span>
                       <Badge variant="outline" className="text-xs border-gray-700 text-gray-500">
                         {MUSCLE_LABELS[ex.muscleGroup] ?? ex.muscleGroup}
                       </Badge>

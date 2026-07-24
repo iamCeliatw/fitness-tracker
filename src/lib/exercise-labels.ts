@@ -1,3 +1,11 @@
+export type LocalizedExercise = { name: string; nameEn?: string | null; nameJa?: string | null };
+
+export function localizedExerciseName(ex: LocalizedExercise, locale: string): string {
+  if (locale === "en" && ex.nameEn) return ex.nameEn;
+  if (locale === "ja" && ex.nameJa) return ex.nameJa;
+  return ex.name;
+}
+
 // 肌群/類別 enum 與中文 label 對照（值與 prisma/schema.prisma 的 enum 一致）
 export const MUSCLE_GROUPS = [
   "CHEST",

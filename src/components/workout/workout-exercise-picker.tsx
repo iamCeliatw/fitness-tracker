@@ -9,10 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ExerciseThumb from "@/components/exercise-thumb";
+import { useLocale } from "next-intl";
+import { localizedExerciseName } from "@/lib/exercise-labels";
 
 export type ExerciseItem = {
   id: string;
   name: string;
+  nameEn?: string | null;
+  nameJa?: string | null;
   muscleGroup: string;
   category: string;
   imageUrl?: string | null;
@@ -50,6 +54,7 @@ export default function WorkoutExercisePicker({
   const [search, setSearch] = useState("");
   const [muscleFilter, setMuscleFilter] = useState("ALL");
 
+  const locale = useLocale();
   const [showCustomForm, setShowCustomForm] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customMuscle, setCustomMuscle] = useState("");
@@ -74,7 +79,9 @@ export default function WorkoutExercisePicker({
 
   const filtered = exercises.filter((ex) => {
     const matchMuscle = muscleFilter === "ALL" || ex.muscleGroup === muscleFilter;
-    const matchSearch = ex.name.toLowerCase().includes(search.toLowerCase());
+    const displayName = localizedExerciseName(ex, locale);
+    const matchSearch = displayName.toLowerCase().includes(search.toLowerCase()) ||
+      ex.name.toLowerCase().includes(search.toLowerCase());
     return matchMuscle && matchSearch;
   });
 
@@ -157,7 +164,7 @@ export default function WorkoutExercisePicker({
               >
                 <span className="flex items-center gap-3 min-w-0">
                   <ExerciseThumb imageUrl={ex.imageUrl} muscleGroup={ex.muscleGroup} name={ex.name} />
-                  <span className="text-sm text-white truncate">{ex.name}</span>
+                  <span className="text-sm text-white truncate">{localizedExerciseName(ex, locale)}</span>
                 </span>
                 <div className="flex items-center gap-1.5">
                   {isSelected && (
