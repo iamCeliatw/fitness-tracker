@@ -1,0 +1,159 @@
+{
+  "common": {
+    "appName": "LiftLog",
+    "loading": "読み込み中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "confirm": "確認",
+    "back": "戻る",
+    "noData": "データがありません"
+  },
+  "nav": {
+    "overview": "概要",
+    "workout": "トレーニング",
+    "body": "体重",
+    "food": "食事",
+    "booking": "予約",
+    "coach": "コーチ",
+    "admin": "管理",
+    "logout": "ログアウト",
+    "memberRole": "メンバー",
+    "adminDashboard": "ダッシュボード",
+    "members": "メンバー",
+    "exercises": "エクササイズ",
+    "settings": "設定"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "name": "お名前",
+    "loginButton": "ログイン",
+    "registerButton": "アカウントを作成",
+    "noAccount": "アカウントをお持ちでない方",
+    "hasAccount": "すでにアカウントをお持ちの方",
+    "loginHere": "ログインはこちら",
+    "registerHere": "登録はこちら"
+  },
+  "workout": {
+    "title": "トレーニング記録",
+    "newWorkout": "新しいトレーニング",
+    "addWorkout": "新しいトレーニング",
+    "noWorkouts": "トレーニング記録がありません。今日のトレーニングを始めましょう！",
+    "date": "トレーニング日",
+    "duration": "トレーニング時間（分）",
+    "notes": "メモ",
+    "notesPlaceholder": "今日のトレーニングの状況...",
+    "exercises": "種目リスト",
+    "addExercise": "種目を追加",
+    "addSet": "セットを追加",
+    "saveWorkout": "保存",
+    "saving": "保存中...",
+    "reps": "回数",
+    "weight": "重量 (kg)",
+    "sets": "セット",
+    "backToLog": "記録に戻る",
+    "desc": "種目を選択してセット数と重量を記録",
+    "clickToStart": "種目を追加してトレーニングを始める",
+    "deleteConfirmTitle": "このトレーニングを削除しますか？",
+    "deleteConfirmDesc": "この操作は元に戻せません。すべてのセット記録が削除されます。",
+    "emptySetError": "各種目に少なくとも1セットの記録が必要です"
+  },
+  "body": {
+    "title": "身体測定",
+    "newRecord": "新しい測定記録",
+    "weight": "体重 (kg)",
+    "bodyFat": "体脂肪率 (%)",
+    "muscleMass": "筋肉量 (kg)",
+    "notes": "メモ",
+    "notesPlaceholder": "今日のコンディション...",
+    "save": "記録を追加",
+    "history": "履歴",
+    "noHistory": "測定記録がありません",
+    "chartHint": "2件以上記録するとトレンドグラフが表示されます",
+    "deleteConfirmTitle": "この記録を削除しますか？",
+    "deleteConfirmDesc": "この操作は元に戻せません。",
+    "30days": "直近30日",
+    "90days": "直近90日"
+  },
+  "food": {
+    "title": "食事記録",
+    "desc": "1日のカロリーと栄養素を記録",
+    "newRecord": "食事を追加",
+    "date": "日付",
+    "mealType": "食事の種類",
+    "name": "食品名",
+    "namePlaceholder": "鶏むね肉",
+    "calories": "カロリー (kcal)",
+    "protein": "タンパク質 (g)",
+    "carbs": "炭水化物 (g)",
+    "fat": "脂質 (g)",
+    "addRecord": "追加",
+    "saving": "保存中...",
+    "noRecords": "今日の食事記録がありません",
+    "deleteConfirmTitle": "この記録を削除しますか？",
+    "deleteConfirmDesc": "この操作は元に戻せません。",
+    "meal": {
+      "BREAKFAST": "朝食",
+      "LUNCH": "昼食",
+      "DINNER": "夕食",
+      "SNACK": "間食"
+    },
+    "summary": {
+      "calories": "カロリー",
+      "protein": "タンパク質",
+      "carbs": "炭水化物",
+      "fat": "脂質"
+    }
+  },
+  "booking": {
+    "title": "コーチを予約",
+    "myBookings": "予約一覧",
+    "available": "予約可能な枠",
+    "noSlots": "現在予約可能な枠がありません",
+    "noBookings": "予約がありません",
+    "book": "予約する",
+    "cancel": "予約をキャンセル",
+    "cancelConfirmTitle": "予約をキャンセルしますか？",
+    "cancelConfirmDesc": "この操作は元に戻せません。",
+    "status": {
+      "CONFIRMED": "確定",
+      "CANCELLED": "キャンセル済み",
+      "PENDING": "保留中"
+    }
+  },
+  "coach": {
+    "title": "コーチダッシュボード",
+    "students": "今週の生徒の進捗",
+    "schedule": "今週のスケジュール",
+    "addSlot": "枠を追加",
+    "noStudents": "ペアリングされた生徒がいません",
+    "noSchedule": "今週の予約はありません"
+  },
+  "admin": {
+    "title": "管理パネル",
+    "members": "メンバー管理",
+    "exercises": "種目管理",
+    "settings": "設定",
+    "auditLogs": "監査ログ",
+    "addMember": "メンバーを追加",
+    "addExercise": "種目を追加",
+    "save": "設定を保存",
+    "saving": "保存中..."
+  },
+  "validation": {
+    "required": "この項目は必須です",
+    "emailInvalid": "メールアドレスの形式が正しくありません",
+    "passwordMin": "パスワードは6文字以上必要です",
+    "positiveNumber": "正の数を入力してください",
+    "dateFormat": "日付の形式が正しくありません"
+  },
+  "locale": {
+    "zh-TW": "中文",
+    "en": "English",
+    "ja": "日本語"
+  }
+}

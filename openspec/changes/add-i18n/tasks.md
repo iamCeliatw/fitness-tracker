@@ -1,15 +1,15 @@
 ## 1. 基礎建設與 POC
 
-- [ ] 1.1 讀 `node_modules/next/dist/docs/` 相關章節 + next-intl 對 Next 16 App Router（無 i18n routing、cookie 模式）的整合文件；`npm install next-intl`
-- [ ] 1.2 最小 POC：root layout 讀 NEXT_LOCALE cookie 載入 messages，landing 一個字串三語切換成功（不成功 → 回 design D6 fallback 評估，暫停回報）
-- [ ] 1.3 建 `messages/zh-TW.json / en.json / ja.json` 骨架（namespace：common/nav/auth/workout/body/food/booking/coach/admin/validation）+ 15 行 key-diff 檢查 script（`npm run i18n:check`）
-- [ ] 1.4 `LocaleSwitcher` 元件（DropdownMenu + 地球 icon + server action 寫 cookie + router.refresh）；掛上 dashboard user-menu 旁、admin、landing、(auth) layout 右上角；瀏覽器確認四處皆可切換
+- [x] 1.1 讀 `node_modules/next/dist/docs/` 相關章節 + next-intl 對 Next 16 App Router（無 i18n routing、cookie 模式）的整合文件；`npm install next-intl`
+- [x] 1.2 最小 POC：root layout 讀 NEXT_LOCALE cookie 載入 messages，landing 一個字串三語切換成功（不成功 → 回 design D6 fallback 評估，暫停回報）
+- [x] 1.3 建 `messages/zh-TW.json / en.json / ja.json` 骨架（namespace：common/nav/auth/workout/body/food/booking/coach/admin/validation）+ 15 行 key-diff 檢查 script（`npm run i18n:check`）
+- [x] 1.4 `LocaleSwitcher` 元件（DropdownMenu + 地球 icon + server action 寫 cookie + router.refresh）；掛上 dashboard user-menu 旁、admin、landing、(auth) layout 右上角；瀏覽器確認四處皆可切換
 
 ## 2. Schema 與動作名翻譯
 
-- [ ] 2.1 `schema.prisma`：Exercise 加 `nameEn String?`、`nameJa String?`；ALTER TABLE SQL 於 Supabase 執行；`prisma generate`
-- [ ] 2.2 23 筆內建動作補 en/ja 翻譯（健身慣用語逐條確認）：seed 更新 + dev DB UPDATE SQL
-- [ ] 2.3 `localizedExerciseName` helper + 動作 API 回傳 name/nameEn/nameJa；選擇器、訓練日誌、admin 列表改用 helper；瀏覽器三語確認 + 自訂動作 fallback 確認
+- [x] 2.1 `schema.prisma`：Exercise 加 `nameEn String?`、`nameJa String?`；ALTER TABLE SQL 於 Supabase 執行；`prisma generate`
+- [x] 2.2 23 筆內建動作補 en/ja 翻譯（健身慣用語逐條確認）：seed 更新 + dev DB UPDATE SQL
+- [x] 2.3 `localizedExerciseName` helper + 動作 API 回傳 name/nameEn/nameJa；選擇器、訓練日誌、admin 列表改用 helper；瀏覽器三語確認 + 自訂動作 fallback 確認
 
 ## 3. 字串抽取（逐頁，每頁完成即瀏覽器目視三語）
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import RollText from "./roll-text";
+import LocaleSwitcher from "@/components/locale-switcher";
 
 const anchors = [
   { label: "功能", href: "#features" },
@@ -51,6 +52,7 @@ export default function LandingNav() {
         </div>
 
         <div className="flex items-center gap-3">
+          <LocaleSwitcher />
           <Link
             href="/login"
             className="group px-3 py-2 text-sm text-gray-300 transition-colors hover:text-white"

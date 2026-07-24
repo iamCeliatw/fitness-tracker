@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Dumbbell, Users, Settings } from "lucide-react";
 import LogoutButton from "@/components/auth/logout-button";
+import { useTranslations } from "next-intl";
 
 // audience：both = 平台 ADMIN 與 org 管理者、org = org 管理者、owner = org OWNER
-const navItems = [
-  { label: "儀表板", href: "/admin", icon: LayoutDashboard, audience: "both" },
-  { label: "成員", href: "/admin/members", icon: Users, audience: "org" },
-  { label: "動作庫", href: "/admin/exercises", icon: Dumbbell, audience: "both" },
-  { label: "設定", href: "/admin/settings", icon: Settings, audience: "owner" },
+const NAV_ITEM_DEFS = [
+  { key: "adminDashboard" as const, href: "/admin", icon: LayoutDashboard, audience: "both" },
+  { key: "members" as const, href: "/admin/members", icon: Users, audience: "org" },
+  { key: "exercises" as const, href: "/admin/exercises", icon: Dumbbell, audience: "both" },
+  { key: "settings" as const, href: "/admin/settings", icon: Settings, audience: "owner" },
 ] as const;
 
 export default function AdminSidebar({
@@ -23,7 +24,8 @@ export default function AdminSidebar({
   isOrgManager: boolean;
 }) {
   const pathname = usePathname();
-  const visibleItems = navItems.filter((item) => {
+  const t = useTranslations("nav");
+  const visibleItems = NAV_ITEM_DEFS.filter((item) => {
     if (item.audience === "owner") return isOwner;
     if (item.audience === "org") return isOrgManager;
     return isAdmin || isOrgManager;
@@ -41,7 +43,7 @@ export default function AdminSidebar({
 
       {/* Nav items */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {visibleItems.map(({ label, href, icon: Icon }) => {
+        {visibleItems.map(({ key, href, icon: Icon }) => {
           const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href));
           return (
             <Link
@@ -54,7 +56,7 @@ export default function AdminSidebar({
               }`}
             >
               <Icon className="h-5 w-5 shrink-0" />
-              {label}
+              {t(key)}
             </Link>
           );
         })}

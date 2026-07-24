@@ -92,7 +92,7 @@ export default function FoodEntryForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label className="text-gray-400 text-xs">日期</Label>
               <Input
@@ -103,7 +103,7 @@ export default function FoodEntryForm() {
             </div>
             <div className="space-y-1">
               <Label className="text-gray-400 text-xs">餐別</Label>
-              <Select value={mealType} onValueChange={(v) => setMealType(v ?? "LUNCH")}>
+              <Select value={mealType} onValueChange={(v) => setMealType(v ?? "LUNCH")} items={MEAL_LABELS}>
                 <SelectTrigger className="bg-gray-800 border-gray-700 text-white h-8 text-sm w-full">
                   <SelectValue />
                 </SelectTrigger>

@@ -1,0 +1,159 @@
+{
+  "common": {
+    "appName": "LiftLog",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "back": "Back",
+    "noData": "No data yet"
+  },
+  "nav": {
+    "overview": "Overview",
+    "workout": "Workout",
+    "body": "Body",
+    "food": "Food",
+    "booking": "Booking",
+    "coach": "Coach",
+    "admin": "Admin",
+    "logout": "Logout",
+    "memberRole": "Member",
+    "adminDashboard": "Dashboard",
+    "members": "Members",
+    "exercises": "Exercises",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "loginButton": "Sign In",
+    "registerButton": "Create Account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginHere": "Sign in",
+    "registerHere": "Register here"
+  },
+  "workout": {
+    "title": "Workout Log",
+    "newWorkout": "New Workout",
+    "addWorkout": "New Workout",
+    "noWorkouts": "No workout records yet. Start your first workout!",
+    "date": "Date",
+    "duration": "Duration (minutes)",
+    "notes": "Notes",
+    "notesPlaceholder": "How was today's session...",
+    "exercises": "Exercises",
+    "addExercise": "Add Exercise",
+    "addSet": "Add Set",
+    "saveWorkout": "Save Workout",
+    "saving": "Saving...",
+    "reps": "Reps",
+    "weight": "Weight (kg)",
+    "sets": "sets",
+    "backToLog": "Back to Log",
+    "desc": "Select exercises and log your sets",
+    "clickToStart": "Click Add Exercise to start",
+    "deleteConfirmTitle": "Delete this workout?",
+    "deleteConfirmDesc": "This action cannot be undone. All sets will be removed.",
+    "emptySetError": "Each exercise needs at least one set with reps or weight"
+  },
+  "body": {
+    "title": "Body Measurements",
+    "newRecord": "New Measurement",
+    "weight": "Weight (kg)",
+    "bodyFat": "Body Fat (%)",
+    "muscleMass": "Muscle Mass (kg)",
+    "notes": "Notes",
+    "notesPlaceholder": "How are you feeling...",
+    "save": "Add Record",
+    "history": "History",
+    "noHistory": "No measurements yet",
+    "chartHint": "Record 2+ entries to see the trend chart",
+    "deleteConfirmTitle": "Delete this record?",
+    "deleteConfirmDesc": "This action cannot be undone.",
+    "30days": "Last 30 days",
+    "90days": "Last 90 days"
+  },
+  "food": {
+    "title": "Food Log",
+    "desc": "Track your daily calories and macros",
+    "newRecord": "New Food Entry",
+    "date": "Date",
+    "mealType": "Meal",
+    "name": "Food Name",
+    "namePlaceholder": "Chicken breast",
+    "calories": "Calories (kcal)",
+    "protein": "Protein (g)",
+    "carbs": "Carbs (g)",
+    "fat": "Fat (g)",
+    "addRecord": "Add Entry",
+    "saving": "Saving...",
+    "noRecords": "No food entries today",
+    "deleteConfirmTitle": "Delete this entry?",
+    "deleteConfirmDesc": "This action cannot be undone.",
+    "meal": {
+      "BREAKFAST": "Breakfast",
+      "LUNCH": "Lunch",
+      "DINNER": "Dinner",
+      "SNACK": "Snack"
+    },
+    "summary": {
+      "calories": "Calories",
+      "protein": "Protein",
+      "carbs": "Carbs",
+      "fat": "Fat"
+    }
+  },
+  "booking": {
+    "title": "Book a Coach",
+    "myBookings": "My Bookings",
+    "available": "Available Slots",
+    "noSlots": "No available slots at the moment",
+    "noBookings": "No bookings yet",
+    "book": "Book",
+    "cancel": "Cancel Booking",
+    "cancelConfirmTitle": "Cancel this booking?",
+    "cancelConfirmDesc": "This action cannot be undone.",
+    "status": {
+      "CONFIRMED": "Confirmed",
+      "CANCELLED": "Cancelled",
+      "PENDING": "Pending"
+    }
+  },
+  "coach": {
+    "title": "Coach Dashboard",
+    "students": "Student Progress This Week",
+    "schedule": "This Week's Schedule",
+    "addSlot": "Add Slot",
+    "noStudents": "No paired students yet",
+    "noSchedule": "No bookings this week"
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "members": "Members",
+    "exercises": "Exercises",
+    "settings": "Settings",
+    "auditLogs": "Audit Logs",
+    "addMember": "Add Member",
+    "addExercise": "Add Exercise",
+    "save": "Save Settings",
+    "saving": "Saving..."
+  },
+  "validation": {
+    "required": "This field is required",
+    "emailInvalid": "Invalid email address",
+    "passwordMin": "Password must be at least 6 characters",
+    "positiveNumber": "Please enter a positive number",
+    "dateFormat": "Invalid date format"
+  },
+  "locale": {
+    "zh-TW": "中文",
+    "en": "English",
+    "ja": "日本語"
+  }
+}

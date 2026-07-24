@@ -10,7 +10,7 @@ export default async function AdminExercisesPage() {
 
   let query = ctx.admin
     .from("Exercise")
-    .select("id, name, description, muscleGroup, category, isCustom, createdById, orgId, imageUrl")
+    .select("id, name, nameEn, nameJa, description, muscleGroup, category, isCustom, createdById, orgId, imageUrl")
     .order("muscleGroup", { ascending: true })
     .order("name", { ascending: true });
 

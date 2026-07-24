@@ -9,7 +9,7 @@ export async function GET() {
 
   let query = ctx.admin
     .from("Exercise")
-    .select("id, name, description, muscleGroup, category, isCustom, createdById, orgId, imageUrl")
+    .select("id, name, nameEn, nameJa, description, muscleGroup, category, isCustom, createdById, orgId, imageUrl")
     .order("muscleGroup", { ascending: true })
     .order("name", { ascending: true });
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       createdAt: now,
       updatedAt: now,
     })
-    .select("id, name, description, muscleGroup, category, isCustom, createdById, orgId, imageUrl")
+    .select("id, name, nameEn, nameJa, description, muscleGroup, category, isCustom, createdById, orgId, imageUrl")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -15,7 +15,7 @@ export default async function WorkoutPage() {
       id, date, notes, duration,
       exercises:WorkoutLogExercise(
         id, order,
-        exercise:Exercise(name, muscleGroup),
+        exercise:Exercise(name, nameEn, nameJa, muscleGroup),
         sets:WorkoutSet(setNumber, reps, weight)
       )
     `)
@@ -30,11 +30,13 @@ export default async function WorkoutPage() {
     duration: log.duration,
     exercises: (log.exercises as unknown as {
       id: string;
-      exercise: { name: string; muscleGroup: string };
+      exercise: { name: string; nameEn: string | null; nameJa: string | null; muscleGroup: string };
       sets: { setNumber: number; reps: number | null; weight: number | null }[];
     }[]).map((ex) => ({
       id: ex.id,
       exerciseName: ex.exercise.name,
+      nameEn: ex.exercise.nameEn,
+      nameJa: ex.exercise.nameJa,
       muscleGroup: ex.exercise.muscleGroup,
       sets: ex.sets.map((s) => ({
         setNumber: s.setNumber,
